@@ -14,7 +14,18 @@ struct ControlView: View {
 
     var body: some View {
         VStack {
-            ControlVisibilityToggleButton(isControlVisibility: $isControlVisibility)
+            HStack {
+                SettingsButton() {
+                    print("settings button pressed")
+                    self.showSettings.toggle()
+                }.sheet(isPresented: $showSettings) {
+                    SettingsView(showSettings: $showSettings)
+                }
+                
+                Spacer()
+                
+                ControlVisibilityToggleButton(isControlVisibility: $isControlVisibility)
+            }
             
             Spacer()
             
@@ -52,6 +63,34 @@ struct ControlVisibilityToggleButton: View {
     }
 }
 
+struct SettingsButton: View {
+    let action: () -> Void
+
+    var body: some View {
+        HStack {
+            ZStack {
+                Color.black.opacity(0.25)
+                
+                Button(action: {
+                    print("SettingsButton toggle")
+                    self.action()
+                }) {
+                    Image(systemName: "slider.horizontal.3")
+                        .font(.system(size: 25))
+                        .foregroundStyle(.white)
+                        .buttonStyle(PlainButtonStyle())
+                }
+            }
+            .frame(width: 50, height: 50)
+            .cornerRadius(8.0)
+
+            Spacer()
+        }
+        .padding(.top, 45)
+        .padding(.leading, 25)
+    }
+}
+
 struct ControlButtonBar: View {
     @EnvironmentObject var placmentSettings: PlacementSettings
     @Binding var showBrowse: Bool
@@ -62,6 +101,15 @@ struct ControlButtonBar: View {
             MostRecentlyPlacedButton().hidden(self.placmentSettings.recentlyPlaced.isEmpty)
 
             Spacer()
+            
+            ControlButton(systemIconName: "plus.circle") {
+                print("browse button pressed")
+                self.showBrowse.toggle()
+            }.fullScreenCover(isPresented: $showBrowse, content: {
+                CreateView()
+            })
+
+            Spacer()
 
             ControlButton(systemIconName: "square.grid.2x2") {
                 print("browse button pressed")
@@ -69,15 +117,6 @@ struct ControlButtonBar: View {
             }.sheet(isPresented: $showBrowse, content: {
                 BrowseView(showBrowse: $showBrowse)
             })
-
-            Spacer()
-
-            ControlButton(systemIconName: "slider.horizontal.3") {
-                print("settings button pressed")
-                self.showSettings.toggle()
-            }.sheet(isPresented: $showSettings) {
-                SettingsView(showSettings: $showSettings)
-            }
         }
         .frame(maxWidth: 500)
         .padding(30)
