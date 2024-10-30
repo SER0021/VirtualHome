@@ -33,9 +33,22 @@
 		8416E9002CBA7C7800738818 /* VirtualHomeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = VirtualHomeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		8477CBAF2CD023F600728CA6 /* Exceptions for "VirtualHome" folder in "VirtualHome" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 8416E8E52CBA7C7600738818 /* VirtualHome */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		8416E8E82CBA7C7600738818 /* VirtualHome */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				8477CBAF2CD023F600728CA6 /* Exceptions for "VirtualHome" folder in "VirtualHome" target */,
+			);
 			path = VirtualHome;
 			sourceTree = "<group>";
 		};
@@ -408,6 +421,7 @@
 				DEVELOPMENT_TEAM = 6UV938CGZH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VirtualHome/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "To use AR, this app needs access to your camera.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -441,6 +455,7 @@
 				DEVELOPMENT_TEAM = 6UV938CGZH;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = VirtualHome/Info.plist;
 				INFOPLIST_KEY_NSCameraUsageDescription = "To use AR, this app needs access to your camera.";
 				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;

@@ -224,7 +224,35 @@ struct ImagePreviewView: View {
     }
     
     private func saveToGallery() {
-        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+//        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
+        let uploader = PhotoUploader(serverURL: URL(string: "http://90.156.217.78:8080/api/upload")!)
+        uploader.uploadPhoto(image) { result in
+            switch result {
+            case .success(let (_, fileName)):
+                print("Photo uploaded successfully with filename: \(fileName)")
+                
+                // URL, на который будет отправлен POST запрос для запуска скрипта
+                guard let scriptURL = URL(string: "http://90.156.217.78:8080/api/run-script") else {
+                    print("Invalid URL for script runner")
+                    return
+                }
+                
+                // Создаем и вызываем PostScriptRunner
+                let scriptRunner = PostScriptRunner(serverURL: scriptURL)
+                scriptRunner.runScript(with: "examples/\(fileName)") { result in
+                    switch result {
+                    case .success:
+                        print("Script executed successfully")
+                    case .failure(let error):
+                        print("Failed to execute script: \(error.localizedDescription)")
+                    }
+                }
+
+            case .failure(let error):
+                print("Failed to upload photo: \(error.localizedDescription)")
+            }
+        }
+
         clearAndDismiss() // Закрытие экрана после сохранения
     }
     
