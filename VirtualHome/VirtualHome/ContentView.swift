@@ -19,6 +19,13 @@ struct ContentView: View {
     var body: some View {
         ZStack(alignment: .bottom) {
             ARViewContainer()
+                .onAppear {
+                    // Перезапуск AR-сессии при появлении главного экрана
+                    print("ARViewContainer exist!!!!!!!!!!!!!")
+                    if let arView = UIApplication.shared.windows.first?.rootViewController?.view as? CustomARView {
+                        arView.restartSession()
+                    }
+                }
             
             if self.placementSettings.selectedModel == nil {
                 ControlView(models: models, isControlVisibility: $isControlVisibility, showCreateView: $showCreateView, showBrowse: $showBrowse, showSettings: $showSettings)

@@ -189,7 +189,7 @@ class Models: ObservableObject {
     // Обновляем вашу функцию handleResponse
     func handleResponse(_ response: ScriptResponse) {
         let modelData = data(fromHexString: response.data)
-        addModel(name: "123", category: .decor, data: modelData!, scaleCompensation: 0.5)
+        addModel(name: "222", category: .decor, data: modelData!, scaleCompensation: 0.5)
     }
 }
 

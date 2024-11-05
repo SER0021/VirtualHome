@@ -208,6 +208,7 @@ struct CreateView: View {
                         presentationMode.wrappedValue.dismiss()
                         cameraController.stopCamera()
                         cameraController.captureSession?.stopRunning()
+                        NotificationCenter.default.post(name: .createViewDismissed, object: nil)
                     }) {
                         Image(systemName: "xmark")
                             .font(.system(size: 30))
@@ -276,6 +277,9 @@ struct CreateView: View {
         .sheet(isPresented: $showImagePicker) {
             PhotoPicker(selectedImage: $selectedImage)
         }
+        .onDisappear {
+             cameraController.captureSession?.stopRunning()
+         }
     }
 }
 
@@ -434,14 +438,7 @@ struct ImagePreviewView: View {
                         print("ID: \(response.id)")
                         print("Name: \(response.name)")
                         print("Upload Time: \(response.uploadTime)")
-                        
                         models.handleResponse(response)
-                        // Если вам нужно работать с `data` как с бинарными данными:
-                        if let modelData = Data(base64Encoded: response.data) {
-                            // обрабатываем modelData, например, сохраняем файл или загружаем в сцену
-                            print("success model")
-                        }
-                        
                     case .failure(let error):
                         print("Error: \(error.localizedDescription)")
                     }
@@ -516,4 +513,8 @@ struct PhotoPicker: UIViewControllerRepresentable {
             }
         }
     }
+}
+
+extension Notification.Name {
+    static let createViewDismissed = Notification.Name("createViewDismissed")
 }
