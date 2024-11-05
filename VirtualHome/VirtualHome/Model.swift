@@ -31,23 +31,26 @@ enum ModelCategory: CaseIterable {
     }
 }
 
+
 class Model {
     var name: String
     var category: ModelCategory
     var thumbnail: UIImage
     var modelEntity: ModelEntity?
     var scaleCompensation: Float
-    
     private var cancalable: AnyCancellable?
 
-    init(name: String, category: ModelCategory, scaleCompensation: Float) {
+    init(name: String, category: ModelCategory, scaleCompensation: Float, modelEntity: ModelEntity? = nil) {
         self.name = name
         self.category = category
         self.thumbnail = UIImage(named: name) ?? UIImage(systemName: "photo")!
         self.scaleCompensation = scaleCompensation
+        self.modelEntity = modelEntity
     }
     
     func asyncLoadModelEntity() {
+        guard modelEntity == nil else { return } // если modelEntity уже установлен, пропускаем загрузку
+
         let filename = self.name + ".usdz"
         
         self.cancalable = ModelEntity.loadModelAsync(named: filename)
@@ -64,10 +67,47 @@ class Model {
                 print("modelEntity for \(self.name) has been loaded")
             })
     }
+
 }
 
-struct Models {
-    var all: [Model] = []
+
+//class Model {
+//    var name: String
+//    var category: ModelCategory
+//    var thumbnail: UIImage
+//    var modelEntity: ModelEntity?
+//    var scaleCompensation: Float
+//    
+//    private var cancalable: AnyCancellable?
+//
+//    init(name: String, category: ModelCategory, scaleCompensation: Float) {
+//        self.name = name
+//        self.category = category
+//        self.thumbnail = UIImage(named: name) ?? UIImage(systemName: "photo")!
+//        self.scaleCompensation = scaleCompensation
+//    }
+//    
+//    func asyncLoadModelEntity() {
+//        let filename = self.name + ".usdz"
+//        
+//        self.cancalable = ModelEntity.loadModelAsync(named: filename)
+//            .sink(receiveCompletion: { loadCompletion in
+//                switch loadCompletion {
+//                case .failure(let error): print("Unable to load modelEntity for \(filename). Error: \(error.localizedDescription)")
+//                case .finished:
+//                    break
+//                }
+//            }, receiveValue: { modelEntity in
+//                self.modelEntity = modelEntity
+//                self.modelEntity?.scale *= self.scaleCompensation
+//                
+//                print("modelEntity for \(self.name) has been loaded")
+//            })
+//    }
+//}
+
+class Models: ObservableObject {
+    @Published var all: [Model] = []
     
     init() {
         let chair = Model(name: "chair", category: .chair, scaleCompensation: 0.5)
@@ -82,4 +122,94 @@ struct Models {
     func get(category: ModelCategory) -> [Model] {
         return all.filter({$0.category == category})
     }
+    
+    func printAllModels(category: ModelCategory) {
+        print(all.count)
+    }
+
+    func addModel(name: String, category: ModelCategory, data: Data, scaleCompensation: Float) {
+        // Создаем временный файл
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(name).usdz")
+        
+        do {
+            // Записываем данные в файл
+            try data.write(to: tempURL)
+            print("Data written to \(tempURL.path)")
+
+            // Создаём асинхронную задачу для загрузки модели
+            Task {
+                do {
+                    // Асинхронная загрузка модели из файла
+                    let modelEntity = try await ModelEntity.loadModel(contentsOf: tempURL)
+                    
+                    // Создаем новую модель
+                    let newModel = Model(name: name, category: category, scaleCompensation: scaleCompensation, modelEntity: modelEntity)
+                    
+                    // Добавляем новую модель в массив
+                    all.append(newModel)
+                    
+                    print("Model \(name) added successfully.")
+                    
+                    // Удаляем временный файл после использования
+//                    try FileManager.default.removeItem(at: tempURL)
+                } catch {
+                    print("Failed to load model: \(error.localizedDescription)")
+                }
+            }
+            
+        } catch {
+            print("Failed to create and write temporary usdz file. Error: \(error.localizedDescription)")
+        }
+    }
+
+    
+    func data(fromHexString hexString: String) -> Data? {
+        var data = Data()
+        var hexSanitized = hexString
+        // Если строка начинается с 0x, удалим ее
+        if hexSanitized.hasPrefix("0x") {
+            hexSanitized.removeFirst(2)
+        }
+
+        // Повторяем для каждой пары символов
+        var index = hexSanitized.startIndex
+        while index < hexSanitized.endIndex {
+            let nextIndex = hexSanitized.index(index, offsetBy: 2)
+            let bytes = hexSanitized[index..<nextIndex]
+            if let byte = UInt8(bytes, radix: 16) {
+                data.append(byte)
+            } else {
+                return nil // Возврат nil, если какие-то символы не удалось преобразовать
+            }
+            index = nextIndex
+        }
+        return data
+    }
+
+    // Обновляем вашу функцию handleResponse
+    func handleResponse(_ response: ScriptResponse) {
+        let modelData = data(fromHexString: response.data)
+        addModel(name: "123", category: .decor, data: modelData!, scaleCompensation: 0.5)
+    }
 }
+
+
+//struct Models {
+//    var all: [Model] = []
+//    
+//    init() {
+//        let chair = Model(name: "chair", category: .chair, scaleCompensation: 0.5)
+//        let flower = Model(name: "flower", category: .decor, scaleCompensation: 0.5)
+//        let tv = Model(name: "tv", category: .decor, scaleCompensation: 0.5)
+//        let table = Model(name: "table", category: .table, scaleCompensation: 0.5)
+//        let lamp = Model(name: "lamp", category: .light, scaleCompensation: 0.5)
+//        
+//        self.all += [chair, flower, tv, table, lamp]
+//    }
+//    
+//    func get(category: ModelCategory) -> [Model] {
+//        return all.filter({$0.category == category})
+//    }
+//}
+
+

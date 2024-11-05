@@ -8,7 +8,9 @@
 import SwiftUI
 
 struct ControlView: View {
+    @ObservedObject var models: Models
     @Binding var isControlVisibility: Bool
+    @Binding var showCreateView: Bool
     @Binding var showBrowse: Bool
     @Binding var showSettings: Bool
 
@@ -30,7 +32,7 @@ struct ControlView: View {
             Spacer()
             
             if isControlVisibility {
-                ControlButtonBar(showBrowse: $showBrowse, showSettings: $showSettings)
+                ControlButtonBar(showCreateView: $showCreateView, showBrowse: $showBrowse, showSettings: $showSettings, models: models)
             }
         }
     }
@@ -93,8 +95,10 @@ struct SettingsButton: View {
 
 struct ControlButtonBar: View {
     @EnvironmentObject var placmentSettings: PlacementSettings
+    @Binding var showCreateView: Bool
     @Binding var showBrowse: Bool
     @Binding var showSettings: Bool
+    @ObservedObject var models: Models
 
     var body: some View {
         HStack {
@@ -104,9 +108,9 @@ struct ControlButtonBar: View {
             
             ControlButton(systemIconName: "plus.circle") {
                 print("browse button pressed")
-                self.showBrowse.toggle()
-            }.fullScreenCover(isPresented: $showBrowse, content: {
-                CreateView()
+                self.showCreateView.toggle()
+            }.fullScreenCover(isPresented: $showCreateView, content: {
+                CreateView(models: models)
             })
 
             Spacer()
@@ -115,7 +119,7 @@ struct ControlButtonBar: View {
                 print("browse button pressed")
                 self.showBrowse.toggle()
             }.sheet(isPresented: $showBrowse, content: {
-                BrowseView(showBrowse: $showBrowse)
+                BrowseView(showBrowse: $showBrowse, models: models)
             })
         }
         .frame(maxWidth: 500)

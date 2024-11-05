@@ -14,6 +14,7 @@ import Combine
 class CustomARView: ARView {
     var focusEntity: FocusEntity?
     var sessionSettings: SessionSettings
+    var sceneUpdateSubscription: Cancellable?
     
     private var peopleOcclussionCancellable: AnyCancellable?
     private var objectOcclussionCancellable: AnyCancellable?

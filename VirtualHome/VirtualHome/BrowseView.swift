@@ -9,12 +9,13 @@ import SwiftUI
 
 struct BrowseView: View {
     @Binding var showBrowse: Bool
+    @ObservedObject var models: Models
 
     var body: some View {
         NavigationView{
             ScrollView(showsIndicators: false) {
                 RecentGrid(showBrowse: $showBrowse)
-                ModelsByCategoryGrid(showBrowse: $showBrowse)
+                ModelsByCategoryGrid(showBrowse: $showBrowse, models: models)
             }
             .navigationTitle(Text("Browse"))
             .navigationBarTitleDisplayMode(.large)
@@ -54,12 +55,13 @@ struct RecentGrid: View {
 
 struct ModelsByCategoryGrid: View {
     @Binding var showBrowse: Bool
-    let models = Models()
+    @ObservedObject var models: Models
 
     var body: some View {
         VStack {
             ForEach(ModelCategory.allCases, id: \.self) { category in
                 let modelsByCategory = models.get(category: category)
+                let _ = models.printAllModels(category: .decor)
                 HorizontalGrid(showBrowse: $showBrowse, title: category.label, items: modelsByCategory)
             }
         }

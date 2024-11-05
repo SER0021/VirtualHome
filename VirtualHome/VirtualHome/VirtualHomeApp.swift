@@ -11,10 +11,11 @@ import SwiftUI
 struct VirtualHomeApp: App {
     @StateObject var placementSettings = PlacementSettings()
     @StateObject var sessionSettings = SessionSettings()
+    var models = Models()
 
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(models: models)
                 .environmentObject(placementSettings)
                 .environmentObject(sessionSettings)
         }

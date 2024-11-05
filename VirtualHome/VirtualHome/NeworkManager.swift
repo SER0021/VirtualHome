@@ -100,13 +100,14 @@ class PostScriptRunner {
     init(serverURL: URL) {
         self.serverURL = serverURL
     }
-
-    func runScript(with filename: String, completion: @escaping (Result<Void, Error>) -> Void) {
+    
+    
+    func runScript(with filename: String, completion: @escaping (Result<ScriptResponse, Error>) -> Void) {
         // Создаем URLRequest
         var request = URLRequest(url: serverURL)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-
+        
         // Настраиваем JSON данных
         let json: [String: Any] = ["filename": filename]
         guard let jsonData = try? JSONSerialization.data(withJSONObject: json, options: []) else {
@@ -115,26 +116,74 @@ class PostScriptRunner {
         }
         
         request.httpBody = jsonData
-
+        
         // Выполняем запрос
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
                 completion(.failure(error))
                 return
             }
-
+            
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
                 completion(.failure(NSError(domain: "PostScriptRunner", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed HTTP response."])))
                 return
             }
-            if let httpResponse = response as? HTTPURLResponse {
-                print("HTTP Response Status Code: \(httpResponse.statusCode)")
+            
+            // Проверяем данные ответа
+            if let data = data {
+                do {
+                    let decoder = JSONDecoder()
+                    let scriptResponse = try decoder.decode(ScriptResponse.self, from: data)
+                    completion(.success(scriptResponse))
+                } catch {
+                    completion(.failure(NSError(domain: "PostScriptRunner", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response."])))
+                }
+            } else {
+                completion(.failure(NSError(domain: "PostScriptRunner", code: 0, userInfo: [NSLocalizedDescriptionKey: "No data in response."])))
             }
-
-            completion(.success(()))
         }
         
         task.resume()
     }
+
+    
+//    func runScript(with filename: String, completion: @escaping (Result<String, Error>) -> Void) {
+//        // Создаем URLRequest
+//        var request = URLRequest(url: serverURL)
+//        request.httpMethod = "POST"
+//        request.addValue("application/json", forHTTPHeaderField: "Content-Type")
+//        
+//        // Настраиваем JSON данных
+//        let json: [String: Any] = ["filename": filename]
+//        guard let jsonData = try? JSONSerialization.data(withJSONObject: json, options: []) else {
+//            completion(.failure(NSError(domain: "PostScriptRunner", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to encode JSON."])))
+//            return
+//        }
+//        
+//        request.httpBody = jsonData
+//        
+//        // Выполняем запрос
+//        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+//            if let error = error {
+//                completion(.failure(error))
+//                return
+//            }
+//            
+//            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+//                completion(.failure(NSError(domain: "PostScriptRunner", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed HTTP response."])))
+//                return
+//            }
+//            
+//            // Проверяем данные ответа
+//            if let data = data, let responseString = String(data: data, encoding: .utf8) {
+//                print("Response String: \(responseString)")
+//                completion(.success(responseString))
+//            } else {
+//                completion(.failure(NSError(domain: "PostScriptRunner", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response."])))
+//            }
+//        }
+//        
+//        task.resume()
+//    }
 }
 
