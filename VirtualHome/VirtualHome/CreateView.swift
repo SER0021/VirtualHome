@@ -91,81 +91,6 @@ class CameraController: NSObject, ObservableObject, AVCapturePhotoCaptureDelegat
     }
 }
 
-
-//class CameraController: NSObject, ObservableObject, AVCapturePhotoCaptureDelegate {
-//    var captureSession: AVCaptureSession?
-//    private var captureDevice: AVCaptureDevice?
-//    private var photoOutput: AVCapturePhotoOutput?
-//    
-//    @Published var isFlashOn = false
-//    @Published var capturedImage: UIImage? = nil
-//    
-//    override init() {
-//        super.init()
-//        setupCamera()
-//    }
-//    
-//    private func setupCamera() {
-//        captureSession = AVCaptureSession()
-//        guard let captureSession = captureSession else { return }
-//        captureSession.sessionPreset = .photo
-//        
-//        guard let device = AVCaptureDevice.default(for: .video) else { return }
-//        captureDevice = device
-//        
-//        do {
-//            let videoInput = try AVCaptureDeviceInput(device: device)
-//            if captureSession.canAddInput(videoInput) {
-//                captureSession.addInput(videoInput)
-//            }
-//        } catch {
-//            print("Unable to add video input")
-//        }
-//        
-//        photoOutput = AVCapturePhotoOutput()
-//        if let photoOutput = self.photoOutput, captureSession.canAddOutput(photoOutput) {
-//            captureSession.addOutput(photoOutput)
-//        }
-//        
-////        captureSession.startRunning()
-//        // Запускаем сессию в фоновом потоке
-//        DispatchQueue.global(qos: .background).async {
-//            captureSession.startRunning()
-//        }
-//    }
-//    
-//    func toggleFlash() {
-//        guard let device = captureDevice else { return }
-//        
-//        do {
-//            try device.lockForConfiguration()
-//            if device.hasTorch {
-//                isFlashOn.toggle()
-//                device.torchMode = isFlashOn ? .on : .off
-//            }
-//            device.unlockForConfiguration()
-//        } catch {
-//            print("Torch could not be used")
-//        }
-//    }
-//    
-//    func takePhoto() {
-//        let settings = AVCapturePhotoSettings()
-////        settings.flashMode = isFlashOn ? .on : .off
-//        
-//        photoOutput?.capturePhoto(with: settings, delegate: self)
-//    }
-//    
-//    func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-//        if let imageData = photo.fileDataRepresentation() {
-//            DispatchQueue.main.async {
-//                self.capturedImage = UIImage(data: imageData)
-//            }
-//        }
-//    }
-//}
-
-
 struct CameraView: UIViewControllerRepresentable {
     let cameraController: CameraController
     
@@ -283,80 +208,6 @@ struct CreateView: View {
     }
 }
 
-
-//struct CreateView: View {
-//    @Environment(\.presentationMode) var presentationMode
-//    @StateObject private var cameraController = CameraController()
-//    @State private var showPreview = false
-//    @State private var showImagePicker = false
-//    @State private var selectedImage: UIImage?
-//    
-//    var body: some View {
-//        ZStack {
-//            CameraView(cameraController: cameraController)
-//                .edgesIgnoringSafeArea(.all)
-//            
-//            VStack {
-//                Spacer()
-//                HStack {
-//                    // Flash Toggle Button
-//                    Button(action: {
-//                        cameraController.toggleFlash()
-//                    }) {
-//                        Image(systemName: cameraController.isFlashOn ? "bolt.fill" : "bolt.slash.fill")
-//                            .font(.system(size: 30))
-//                            .foregroundColor(.white)
-//                    }
-//                    .frame(width: 50, height: 50)
-//                    
-//                    Spacer()
-//                    
-//                    // Capture Button
-//                    Button(action: {
-//                        cameraController.takePhoto()
-//                    }) {
-//                        CameraButton()
-//                    }
-//                    .frame(width: 50, height: 50)
-//                    
-//                    Spacer()
-//                    
-//                    // Gallery Button
-//                    Button(action: {
-//                        showImagePicker = true
-//                    }) {
-//                        Image(systemName: "photo")
-//                            .font(.system(size: 30))
-//                            .foregroundColor(.white)
-//                    }
-//                    .frame(width: 50, height: 50)
-//                }
-//                .frame(maxWidth: 500)
-//                .padding(30)
-//                .background(Color.black.opacity(0.25))
-//            }
-//        }
-//        .onChange(of: cameraController.capturedImage) { newImage in
-//            if newImage != nil {
-//                showPreview = true
-//            }
-//        }
-//        .onChange(of: selectedImage) { newImage in
-//            if newImage != nil {
-//                showPreview = true
-//            }
-//        }
-//        .fullScreenCover(isPresented: $showPreview, content: {
-//            if let image = cameraController.capturedImage ?? selectedImage {
-//                ImagePreviewView(image: image, capturedImage: $cameraController.capturedImage, selectedImage: $selectedImage, isPresented: $showPreview)
-//            }
-//        })
-//        .sheet(isPresented: $showImagePicker) {
-//            PhotoPicker(selectedImage: $selectedImage)
-//        }
-//    }
-//}
-
 struct CameraButton: View {
     var body: some View {
         ZStack {
@@ -400,7 +251,7 @@ struct ImagePreviewView: View {
             
             HStack {
                 Button(action: {
-                    saveToGallery()
+                    sendToBackend()
                 }) {
                     Text("Сохранить")
                         .font(.system(size: 27))
@@ -415,9 +266,10 @@ struct ImagePreviewView: View {
         }
     }
     
-    private func saveToGallery() {
+    private func sendToBackend() {
 //        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
         let uploader = PhotoUploader(serverURL: URL(string: "http://90.156.217.78:8080/api/upload")!)
+        NotificationCenter.default.post(name: .start3DModelAdded, object: nil)
         uploader.uploadPhoto(image) { result in
             switch result {
             case .success(let (_, fileName)):
@@ -443,19 +295,6 @@ struct ImagePreviewView: View {
                         print("Error: \(error.localizedDescription)")
                     }
                 }
-
-//                scriptRunner.runScript(with: "examples/\(fileName)") { result in
-//                    switch result {
-//                    case .success(let response):
-//                        print("ok")
-////                        if response == "\"OK\"\n" {
-////                            print("Script completed successfully")
-////                        }
-//                    case .failure(let error):
-//                        print("Failed to execute script: \(error.localizedDescription)")
-//                    }
-//                }
-
             case .failure(let error):
                 print("Failed to upload photo: \(error.localizedDescription)")
             }
@@ -517,4 +356,6 @@ struct PhotoPicker: UIViewControllerRepresentable {
 
 extension Notification.Name {
     static let createViewDismissed = Notification.Name("createViewDismissed")
+    static let start3DModelAdded = Notification.Name("start3DModelAdded")
+    static let end3DModelAdded = Notification.Name("end3DModelAdded")
 }

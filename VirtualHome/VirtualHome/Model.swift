@@ -70,42 +70,6 @@ class Model {
 
 }
 
-
-//class Model {
-//    var name: String
-//    var category: ModelCategory
-//    var thumbnail: UIImage
-//    var modelEntity: ModelEntity?
-//    var scaleCompensation: Float
-//    
-//    private var cancalable: AnyCancellable?
-//
-//    init(name: String, category: ModelCategory, scaleCompensation: Float) {
-//        self.name = name
-//        self.category = category
-//        self.thumbnail = UIImage(named: name) ?? UIImage(systemName: "photo")!
-//        self.scaleCompensation = scaleCompensation
-//    }
-//    
-//    func asyncLoadModelEntity() {
-//        let filename = self.name + ".usdz"
-//        
-//        self.cancalable = ModelEntity.loadModelAsync(named: filename)
-//            .sink(receiveCompletion: { loadCompletion in
-//                switch loadCompletion {
-//                case .failure(let error): print("Unable to load modelEntity for \(filename). Error: \(error.localizedDescription)")
-//                case .finished:
-//                    break
-//                }
-//            }, receiveValue: { modelEntity in
-//                self.modelEntity = modelEntity
-//                self.modelEntity?.scale *= self.scaleCompensation
-//                
-//                print("modelEntity for \(self.name) has been loaded")
-//            })
-//    }
-//}
-
 class Models: ObservableObject {
     @Published var all: [Model] = []
     
@@ -149,6 +113,7 @@ class Models: ObservableObject {
                     all.append(newModel)
                     
                     print("Model \(name) added successfully.")
+                    NotificationCenter.default.post(name: .end3DModelAdded, object: nil)
                     
                     // Удаляем временный файл после использования
 //                    try FileManager.default.removeItem(at: tempURL)
@@ -192,24 +157,5 @@ class Models: ObservableObject {
         addModel(name: "222", category: .decor, data: modelData!, scaleCompensation: 0.5)
     }
 }
-
-
-//struct Models {
-//    var all: [Model] = []
-//    
-//    init() {
-//        let chair = Model(name: "chair", category: .chair, scaleCompensation: 0.5)
-//        let flower = Model(name: "flower", category: .decor, scaleCompensation: 0.5)
-//        let tv = Model(name: "tv", category: .decor, scaleCompensation: 0.5)
-//        let table = Model(name: "table", category: .table, scaleCompensation: 0.5)
-//        let lamp = Model(name: "lamp", category: .light, scaleCompensation: 0.5)
-//        
-//        self.all += [chair, flower, tv, table, lamp]
-//    }
-//    
-//    func get(category: ModelCategory) -> [Model] {
-//        return all.filter({$0.category == category})
-//    }
-//}
 
 
