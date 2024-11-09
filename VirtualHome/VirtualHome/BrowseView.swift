@@ -104,6 +104,7 @@ struct HorizontalGrid: View {
     }
 }
 
+
 struct ItemButton: View {
     let model: Model
     let action: () -> Void
@@ -112,13 +113,23 @@ struct ItemButton: View {
         Button(action: {
             self.action()
         }) {
-            Image(uiImage: self.model.thumbnail)
-                .resizable()
-                .frame(height: 150)
-                .aspectRatio(1/1, contentMode: .fit)
-                .background(Color(UIColor.secondarySystemFill))
-                .cornerRadius(8.0)
+            VStack {
+                Image(uiImage: self.model.thumbnail)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .background(Color(UIColor.secondarySystemFill))
+                    .frame(height: 150)
+                    .cornerRadius(8.0)
+                
+                // Удален Spacer() здесь
+                
+                Text(self.model.getName())
+                    .bold()
+                    .padding(.top, 5)
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity) // Позволяет Vstack занимать все доступное пространство
         }
+        .buttonStyle(PlainButtonStyle()) // Добавляем стиль кнопки, чтобы избежать изменения стиля системы
     }
 }
 

@@ -228,6 +228,8 @@ struct ImagePreviewView: View {
     @Binding var selectedImage: UIImage?
     @Binding var isPresented: Bool
     @ObservedObject var models: Models
+    @State private var imageName: String = ""
+    @State private var selectedCategory = ModelCategory.decor
 
     var body: some View {
         VStack {
@@ -249,9 +251,22 @@ struct ImagePreviewView: View {
             
             Spacer()
             
+            TextField("Введите название для изображения", text: $imageName)
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding()
+            
+            // Picker для выбора категории
+            Picker("Выберите категорию", selection: $selectedCategory) {
+                ForEach(ModelCategory.allCases, id: \.self) { category in
+                    Text(category.label).tag(category)
+                }
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding()
+            
             HStack {
                 Button(action: {
-                    sendToBackend()
+                    sendToBackend(imageName: imageName, category: selectedCategory)
                 }) {
                     Text("Сохранить")
                         .font(.system(size: 27))
@@ -266,7 +281,7 @@ struct ImagePreviewView: View {
         }
     }
     
-    private func sendToBackend() {
+    private func sendToBackend(imageName: String, category: ModelCategory) {
 //        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
         let uploader = PhotoUploader(serverURL: URL(string: "http://90.156.217.78:8080/api/upload")!)
         NotificationCenter.default.post(name: .start3DModelAdded, object: nil)
@@ -287,10 +302,8 @@ struct ImagePreviewView: View {
                 scriptRunner.runScript(with: "examples/\(fileName)") { result in
                     switch result {
                     case .success(let response):
-                        print("ID: \(response.id)")
-                        print("Name: \(response.name)")
-                        print("Upload Time: \(response.uploadTime)")
-                        models.handleResponse(response)
+                        print("Successfully")
+                        models.handleResponse(response, imageName: imageName, category: category)
                     case .failure(let error):
                         print("Error: \(error.localizedDescription)")
                     }

@@ -101,7 +101,6 @@ class PostScriptRunner {
         self.serverURL = serverURL
     }
     
-    
     func runScript(with filename: String, completion: @escaping (Result<ScriptResponse, Error>) -> Void) {
         // Создаем URLRequest
         var request = URLRequest(url: serverURL)

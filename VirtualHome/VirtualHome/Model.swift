@@ -5,6 +5,7 @@
 //  Created by Сергей Васильев on 12.10.2024.
 //
 
+import UIKit
 import SwiftUI
 import RealityKit
 import Combine
@@ -31,14 +32,14 @@ enum ModelCategory: CaseIterable {
     }
 }
 
-
+// Реализация вашего Model
 class Model {
     var name: String
     var category: ModelCategory
     var thumbnail: UIImage
     var modelEntity: ModelEntity?
     var scaleCompensation: Float
-    private var cancalable: AnyCancellable?
+    private var cancellable: AnyCancellable?
 
     init(name: String, category: ModelCategory, scaleCompensation: Float, modelEntity: ModelEntity? = nil) {
         self.name = name
@@ -48,26 +49,37 @@ class Model {
         self.modelEntity = modelEntity
     }
     
+    init(name: String, category: ModelCategory, thumbnail: UIImage, scaleCompensation: Float, modelEntity: ModelEntity? = nil) {
+        self.name = name
+        self.category = category
+        self.thumbnail = thumbnail
+        self.scaleCompensation = scaleCompensation
+        self.modelEntity = modelEntity
+    }
+    
     func asyncLoadModelEntity() {
-        guard modelEntity == nil else { return } // если modelEntity уже установлен, пропускаем загрузку
-
+        guard modelEntity == nil else { return }
+        
         let filename = self.name + ".usdz"
         
-        self.cancalable = ModelEntity.loadModelAsync(named: filename)
+        self.cancellable = ModelEntity.loadModelAsync(named: filename)
             .sink(receiveCompletion: { loadCompletion in
                 switch loadCompletion {
                 case .failure(let error): print("Unable to load modelEntity for \(filename). Error: \(error.localizedDescription)")
-                case .finished:
-                    break
+                case .finished: break
                 }
-            }, receiveValue: { modelEntity in
+            }, receiveValue: { [weak self] modelEntity in
+                guard let self = self else { return }
                 self.modelEntity = modelEntity
                 self.modelEntity?.scale *= self.scaleCompensation
-                
                 print("modelEntity for \(self.name) has been loaded")
+                // Использование жестов должны быть добавлено в makeUIView() вашего ARViewContainer
             })
     }
-
+    
+    func getName() -> String {
+        self.name.prefix(1).uppercased() + self.name.dropFirst()
+    }
 }
 
 class Models: ObservableObject {
@@ -91,10 +103,9 @@ class Models: ObservableObject {
         print(all.count)
     }
 
-    func addModel(name: String, category: ModelCategory, data: Data, scaleCompensation: Float) {
+    func addModel(name: String, category: ModelCategory, data: Data, scaleCompensation: Float, image: UIImage) {
         // Создаем временный файл
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(name).usdz")
-        
         do {
             // Записываем данные в файл
             try data.write(to: tempURL)
@@ -105,11 +116,8 @@ class Models: ObservableObject {
                 do {
                     // Асинхронная загрузка модели из файла
                     let modelEntity = try await ModelEntity.loadModel(contentsOf: tempURL)
+                    let newModel = Model(name: name, category: category, thumbnail: image, scaleCompensation: scaleCompensation, modelEntity: modelEntity)
                     
-                    // Создаем новую модель
-                    let newModel = Model(name: name, category: category, scaleCompensation: scaleCompensation, modelEntity: modelEntity)
-                    
-                    // Добавляем новую модель в массив
                     all.append(newModel)
                     
                     print("Model \(name) added successfully.")
@@ -152,9 +160,10 @@ class Models: ObservableObject {
     }
 
     // Обновляем вашу функцию handleResponse
-    func handleResponse(_ response: ScriptResponse) {
-        let modelData = data(fromHexString: response.data)
-        addModel(name: "222", category: .decor, data: modelData!, scaleCompensation: 0.5)
+    func handleResponse(_ response: ScriptResponse, imageName: String, category: ModelCategory) {
+        let modelData = data(fromHexString: response.meshData.data)
+        let image = response.decodedImage() ?? UIImage(systemName: "photo")!
+        addModel(name: imageName, category: category, data: modelData!, scaleCompensation: 0.5, image: image)
     }
 }
 
