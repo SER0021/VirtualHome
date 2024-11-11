@@ -15,9 +15,11 @@ struct VirtualHomeApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(models: models)
-                .environmentObject(placementSettings)
-                .environmentObject(sessionSettings)
+//            ContentView(models: models)
+//                .environmentObject(placementSettings)
+//                .environmentObject(sessionSettings)
+            AuthenticationView()
+//            RegistrationView()
         }
     }
 }
