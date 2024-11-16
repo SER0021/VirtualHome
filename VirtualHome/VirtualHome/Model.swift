@@ -9,6 +9,7 @@ import UIKit
 import SwiftUI
 import RealityKit
 import Combine
+import ObjectiveC.runtime
 
 enum ModelCategory: CaseIterable {
     case table
@@ -56,6 +57,11 @@ class Model {
         self.scaleCompensation = scaleCompensation
         self.modelEntity = modelEntity
     }
+    
+    func updateHeight(_ height: Float) {
+        modelEntity?.position.y = height
+        print("Updated Model Y-Position: \(String(describing: modelEntity?.position.y))")
+     }
     
     func asyncLoadModelEntity() {
         guard modelEntity == nil else { return }
@@ -165,6 +171,25 @@ class Models: ObservableObject {
         let image = response.decodedImage() ?? UIImage(systemName: "photo")!
         addModel(name: imageName, category: category, data: modelData!, scaleCompensation: 0.5, image: image)
     }
+    
+    func removeModel(name: String) {
+        all.removeAll { $0.name == name }
+        print("Model \(name) removed.")
+    }
 }
 
+extension ModelEntity {
+    private struct AssociatedKeys {
+        static var model: UInt8 = 0  // Используем безопасное адресное место типа UInt8
+    }
+    
+    var linkedModel: Model? {
+        get {
+            return objc_getAssociatedObject(self, &AssociatedKeys.model) as? Model
+        }
+        set {
+            objc_setAssociatedObject(self, &AssociatedKeys.model, newValue, .OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+        }
+    }
+}
 

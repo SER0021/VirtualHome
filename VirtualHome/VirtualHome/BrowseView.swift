@@ -121,15 +121,13 @@ struct ItemButton: View {
                     .frame(height: 150)
                     .cornerRadius(8.0)
                 
-                // Удален Spacer() здесь
-                
                 Text(self.model.getName())
                     .bold()
                     .padding(.top, 5)
             }
-            .frame(maxWidth: .infinity, maxHeight: .infinity) // Позволяет Vstack занимать все доступное пространство
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .buttonStyle(PlainButtonStyle()) // Добавляем стиль кнопки, чтобы избежать изменения стиля системы
+        .buttonStyle(PlainButtonStyle())
     }
 }
 

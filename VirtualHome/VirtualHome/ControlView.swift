@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import RealityFoundation
 
 struct ControlView: View {
     @ObservedObject var models: Models
@@ -13,6 +14,9 @@ struct ControlView: View {
     @Binding var showCreateView: Bool
     @Binding var showBrowse: Bool
     @Binding var showSettings: Bool
+    @Binding var showSelectedModel: Bool
+    @Binding var selectedModel: Model?
+    @Binding var selectedModelAnchor: AnchorEntity?
 
     var body: some View {
         VStack {
@@ -28,8 +32,22 @@ struct ControlView: View {
                 
                 ControlVisibilityToggleButton(isControlVisibility: $isControlVisibility)
             }
+            Spacer()
+
+            HStack{
+                Spacer()
+
+                if isControlVisibility && showSelectedModel && selectedModel != nil {
+                    Spacer()
+                    ModelHeightControlView(selectedModelAnchor: $selectedModelAnchor)
+                }
+            }
             
             Spacer()
+
+            if isControlVisibility && showSelectedModel && selectedModel != nil {
+                SelectedModelView(models: models, showSelectedModel: $showSelectedModel, model: $selectedModel, selectedModelAnchor: $selectedModelAnchor)
+            }
             
             if isControlVisibility {
                 ControlButtonBar(showCreateView: $showCreateView, showBrowse: $showBrowse, showSettings: $showSettings, models: models)

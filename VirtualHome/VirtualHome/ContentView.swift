@@ -9,9 +9,6 @@ import SwiftUI
 import UIKit
 import RealityKit
 
-
-import SwiftUI
-
 struct ContentView: View {
     @EnvironmentObject var placementSettings: PlacementSettings
     @ObservedObject var models: Models
@@ -20,13 +17,16 @@ struct ContentView: View {
     @State var showCreateView: Bool = false
     @State private var showSettings: Bool = false
     @State private var showLoadingSpinner: Bool = false
+    @State private var showSelectedModel: Bool = false
+    @State private var selectedModel: Model? = nil
+    @State var selectedModelAnchor: AnchorEntity? = nil
 
     var body: some View {
         ZStack(alignment: .bottom) {
-            ARViewContainer()
+            ARViewContainer(showSelectedModel: $showSelectedModel, selectedModel: $selectedModel, selectedModelAnchor: $selectedModelAnchor)
             
             if self.placementSettings.selectedModel == nil {
-                ControlView(models: models, isControlVisibility: $isControlVisibility, showCreateView: $showCreateView, showBrowse: $showBrowse, showSettings: $showSettings)
+                ControlView(models: models, isControlVisibility: $isControlVisibility, showCreateView: $showCreateView, showBrowse: $showBrowse, showSettings: $showSettings, showSelectedModel: $showSelectedModel, selectedModel: $selectedModel, selectedModelAnchor: $selectedModelAnchor)
             } else {
                 PlacementView()
             }
@@ -68,6 +68,9 @@ struct ContentView: View {
 struct ARViewContainer: UIViewRepresentable {
     @EnvironmentObject var placementSettings: PlacementSettings
     @EnvironmentObject var sessionSettings: SessionSettings
+    @Binding var showSelectedModel: Bool
+    @Binding var selectedModel: Model?
+    @Binding var selectedModelAnchor: AnchorEntity?
 
     func makeUIView(context: Context) -> CustomARView {
         let arView = CustomARView(frame: .zero, sessionSettings: sessionSettings)
@@ -81,6 +84,9 @@ struct ARViewContainer: UIViewRepresentable {
         // Добавляем жест длительного удержания
         let longPressGesture = UILongPressGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleLongPress(_:)))
         arView.addGestureRecognizer(longPressGesture)
+        
+        let tapGestureRecognizer = UITapGestureRecognizer(target: context.coordinator, action: #selector(Coordinator.handleTap(_:)))
+        arView.addGestureRecognizer(tapGestureRecognizer)
 
         return arView
     }
@@ -103,6 +109,7 @@ struct ARViewContainer: UIViewRepresentable {
 
     private func place(_ modelEntity: ModelEntity, in arView: ARView) {
         let clonedEntity = modelEntity.clone(recursive: true)
+        clonedEntity.linkedModel = self.placementSettings.confirmedModel
 
         clonedEntity.generateCollisionShapes(recursive: true)
         arView.installGestures([.translation, .scale, .rotation], for: clonedEntity)
@@ -115,7 +122,7 @@ struct ARViewContainer: UIViewRepresentable {
     }
 
     func makeCoordinator() -> Coordinator {
-        return Coordinator(self)
+        return Coordinator(self, showSelectedModel: $showSelectedModel, selectedModel: $selectedModel)
     }
 
     class Coordinator: NSObject {
@@ -123,9 +130,43 @@ struct ARViewContainer: UIViewRepresentable {
         private var selectedEntity: ModelEntity?
         private var initialTouchPoint: CGPoint?
         private let feedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+        
+        @Binding var showSelectedModel: Bool
+        @Binding var selectedModel: Model?
 
-        init(_ parent: ARViewContainer) {
+        init(_ parent: ARViewContainer, showSelectedModel: Binding<Bool>, selectedModel: Binding<Model?>) {
             self.parent = parent
+            self._showSelectedModel = showSelectedModel
+            self._selectedModel = selectedModel
+        }
+        
+        @objc func handleTap(_ recognizer: UITapGestureRecognizer) {
+            guard let arView = recognizer.view as? ARView else { return }
+            
+            let location = recognizer.location(in: arView)
+            
+            // Определяем объект под пальцем
+            if let entity = arView.entity(at: location) as? ModelEntity {
+                let model = entity.linkedModel
+                let anchor = entity.anchor as? AnchorEntity
+                
+                print("Model \(model?.name ?? "unknown") tapped")
+                if let anchor = anchor {
+                    print("Anchor for this model found: \(anchor)")
+                } else {
+                    print("Anchor not found for this model")
+                }
+
+                // Обновляем состояние
+                showSelectedModel = true
+                selectedModel = model
+                parent.selectedModelAnchor = anchor
+            } else {
+                print("Tap on empty space")
+                showSelectedModel = false
+                selectedModel = nil
+                parent.selectedModelAnchor = nil
+            }
         }
 
         @objc func handleLongPress(_ recognizer: UILongPressGestureRecognizer) {
