@@ -29,9 +29,7 @@ struct AuthenticationView: View {
                 Spacer()
                 HStack{
                     Text("Авторизация")
-                        .font(.system(size: 40))
-                        .bold()
-                        .foregroundStyle(darkWhiteColor)
+                        .font(.system(size: 40, weight: .semibold)).foregroundColor(Color(#colorLiteral(red: 0.85, green: 0.85, blue: 0.85, alpha: 1)))
                     Spacer()
                 }
                 .padding(.leading, 16)
