@@ -10,30 +10,31 @@ import SwiftUI
 struct MainView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-
-            HStack {
-                Spacer()
-                HStack(spacing: 8) {
-                    VStack(alignment: .leading, spacing: 3) {
-                        Text("Имя")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundColor(Color("MainTextColor"))
-                            .multilineTextAlignment(.trailing)
-                        Text("@nickname")
-                            .font(.system(size: 14))
-                            .foregroundColor(Color("SubTextColor"))
-                    }
-                    Image("Icon.DefaultProfileIcon")
-                        .resizable()
-                        .frame(width: 50, height: 50)
-                        .clipShape(Circle())
-                }
-                .padding(.trailing, 16)
-            }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(Color("FrameColor"))
-            .cornerRadius(30)
             
+            Button(action: {}) {
+                HStack {
+                    Spacer()
+                    HStack(spacing: 8) {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text("Имя")
+                                .font(.system(size: 18, weight: .bold))
+                                .foregroundColor(Color("MainTextColor"))
+                                .multilineTextAlignment(.trailing)
+                            Text("@nickname")
+                                .font(.system(size: 14))
+                                .foregroundColor(Color("SubTextColor"))
+                        }
+                        Image("Icon.DefaultProfileIcon")
+                            .resizable()
+                            .frame(width: 50, height: 50)
+                            .clipShape(Circle())
+                    }
+                    .padding(.trailing, 16)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(Color("FrameColor"))
+                .cornerRadius(30)
+            }
             
             HStack(spacing: 11) {
                 Button(action: {
