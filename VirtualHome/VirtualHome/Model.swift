@@ -34,7 +34,7 @@ enum ModelCategory: CaseIterable {
 }
 
 // Реализация вашего Model
-class Model {
+class Model: Identifiable {
     var name: String
     var category: ModelCategory
     var thumbnail: UIImage
