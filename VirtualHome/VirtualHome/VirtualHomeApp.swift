@@ -11,11 +11,12 @@ import SwiftUI
 struct VirtualHomeApp: App {
     @StateObject var placementSettings = PlacementSettings()
     @StateObject var sessionSettings = SessionSettings()
+//    @State var showLoadingSpinner: Bool = false
     var models = Models()
 
     var body: some Scene {
         WindowGroup {
-//            ContentView(models: models)
+//            ContentView(models: models, showLoadingSpinner: $showLoadingSpinner)
 //                .environmentObject(placementSettings)
 //                .environmentObject(sessionSettings)
             AuthenticationView()

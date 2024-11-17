@@ -9,6 +9,7 @@ import SwiftUI
 import UIKit
 import RealityKit
 
+
 struct ContentView: View {
     @EnvironmentObject var placementSettings: PlacementSettings
     @ObservedObject var models: Models
@@ -16,53 +17,25 @@ struct ContentView: View {
     @State private var showBrowse: Bool = false
     @State var showCreateView: Bool = false
     @State private var showSettings: Bool = false
-    @State private var showLoadingSpinner: Bool = false
     @State private var showSelectedModel: Bool = false
     @State private var selectedModel: Model? = nil
     @State var selectedModelAnchor: AnchorEntity? = nil
     @Environment(\.presentationMode) var presentationMode
+
+    @Binding var showLoadingSpinner: Bool
+    @State private var loadingProgress: Double = 0.0
 
     var body: some View {
         ZStack(alignment: .bottom) {
             ARViewContainer(showSelectedModel: $showSelectedModel, selectedModel: $selectedModel, selectedModelAnchor: $selectedModelAnchor)
             
             if self.placementSettings.selectedModel == nil {
-                ControlView(models: models, isControlVisibility: $isControlVisibility, showCreateView: $showCreateView, showBrowse: $showBrowse, showSettings: $showSettings, showSelectedModel: $showSelectedModel, selectedModel: $selectedModel, selectedModelAnchor: $selectedModelAnchor)
+                ControlView(models: models, isControlVisibility: $isControlVisibility, showCreateView: $showCreateView, showBrowse: $showBrowse, showSettings: $showSettings, showSelectedModel: $showSelectedModel, selectedModel: $selectedModel, selectedModelAnchor: $selectedModelAnchor, showLoadingSpinner: $showLoadingSpinner)
             } else {
                 PlacementView()
             }
-            
-            VStack {
-                Spacer()
-                if showLoadingSpinner {
-                    ProgressView("Loading...")
-                        .frame(width: 100, height: 100)
-                        .progressViewStyle(CircularProgressViewStyle())
-                        .foregroundStyle(.white)
-                        .background(Color.black.opacity(0.5))
-                        .cornerRadius(10)
-                        .padding()
-                }
-                Spacer()
-            }
         }
         .edgesIgnoringSafeArea(.all)
-        .onReceive(NotificationCenter.default.publisher(for: .start3DModelAdded)) { _ in
-            startLoading()
-        }
-        .onReceive(NotificationCenter.default.publisher(for: .end3DModelAdded)) { _ in
-            stopLoading()
-        }
-    }
-
-    // Функция для запуска спиннера
-    func startLoading() {
-        showLoadingSpinner = true
-    }
-
-    // Функция для остановки спиннера
-    func stopLoading() {
-        showLoadingSpinner = false
     }
 }
 

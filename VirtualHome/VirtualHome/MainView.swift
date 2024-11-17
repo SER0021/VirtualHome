@@ -13,6 +13,7 @@ struct MainView: View {
     @EnvironmentObject var sessionSettings: SessionSettings
     @State var showCreateView: Bool = false
     @State var showContentView: Bool = false
+    @State var showLoadingSpinner: Bool = false
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack{
@@ -42,8 +43,8 @@ struct MainView: View {
                 }
             }
             HStack(spacing: 11) {
-                OpenCreateViewButton(imageName: "Icon.AddModel", text: "Добавить\n3D модель", models: models, showCreateView: $showCreateView)
-                OpenContentViewButton(imageName: "Icon.VirtualHome", text: "VirtualHome", models: models, showContentView: $showContentView)
+                OpenCreateViewButton(imageName: "Icon.AddModel", text: "Добавить\n3D модель", models: models, showCreateView: $showCreateView, showLoadingSpinner: $showLoadingSpinner)
+                OpenContentViewButton(imageName: "Icon.VirtualHome", text: "VirtualHome", models: models, showContentView: $showContentView, showLoadingSpinner: $showLoadingSpinner)
             }
             .padding(.horizontal, 16)
             
@@ -84,6 +85,12 @@ struct MainView: View {
             Spacer()
         }
         .background(Color("AccentColor"))
+        .onReceive(NotificationCenter.default.publisher(for: .start3DModelAdded)) { _ in
+            showLoadingSpinner = true
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .end3DModelAdded)) { _ in
+            showLoadingSpinner = false
+        }
     }
 }
 
@@ -92,6 +99,7 @@ struct OpenCreateViewButton: View {
     let text: String
     @ObservedObject var models: Models
     @Binding var showCreateView: Bool
+    @Binding var showLoadingSpinner: Bool
     @State private var isLoading: Bool = false // Флаг загрузки
 
     var body: some View {
@@ -152,6 +160,7 @@ struct OpenContentViewButton: View {
     @EnvironmentObject var placementSettings: PlacementSettings
     @EnvironmentObject var sessionSettings: SessionSettings
     @State private var isLoading: Bool = false // Флаг загрузки
+    @Binding var showLoadingSpinner: Bool
 
     var body: some View {
         ZStack {
@@ -198,7 +207,7 @@ struct OpenContentViewButton: View {
             // Убираем спиннер при закрытии ContentView
             isLoading = false
         }) {
-            ContentView(models: models)
+            ContentView(models: models, showLoadingSpinner: $showLoadingSpinner)
                 .environmentObject(placementSettings)
                 .environmentObject(sessionSettings)
         }

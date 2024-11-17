@@ -17,6 +17,9 @@ struct ControlView: View {
     @Binding var showSelectedModel: Bool
     @Binding var selectedModel: Model?
     @Binding var selectedModelAnchor: AnchorEntity?
+    @Binding var showLoadingSpinner: Bool
+    @State private var loadingProgress: Double = 0.0
+    @State private var showSuccessPopup: Bool = false
 
     var body: some View {
         VStack {
@@ -31,11 +34,71 @@ struct ControlView: View {
                 }
                 
                 Spacer()
+                
+                
+                ZStack(alignment: .top) {
+                    // Прогресс-бар
+                    if showLoadingSpinner {
+                        VStack {
+                            Text("Создаем модель...")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white)
 
+                            ProgressView(value: loadingProgress, total: 1.0)
+                                .progressViewStyle(LinearProgressViewStyle(tint: .white))
+                                .padding(.horizontal)
+                                .frame(width: 150, height: 10)
+                                .cornerRadius(5)
+                        }
+                        .frame(width: 150, height: 50)
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(10)
+                        .padding(.top, 40)
+                        .padding()
+                        .transition(.opacity)
+                        .animation(.easeInOut(duration: 0.3), value: showLoadingSpinner)
+                        .onAppear {
+                            startLoading()
+                        }
+                        .onDisappear {
+                            stopLoading()
+                        }
+                    }
+                    
+                    // Всплывающее сообщение успеха
+                    if showSuccessPopup {
+                        VStack {
+                            HStack {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .resizable()
+                                    .foregroundColor(.green)
+                                    .frame(width: 24, height: 24)
+                                    .padding(.trailing, 10)
+
+                                Text("Модель добавлена")
+                                    .font(.system(size: 16, weight: .semibold))
+                                    .foregroundColor(.white)
+                                    .multilineTextAlignment(.leading)
+                            }
+                        }
+                        .frame(width: 150, height: 50)
+                        .background(Color.black.opacity(0.7))
+                        .cornerRadius(10)
+                        .padding(.top, 40)
+                        .padding()
+                        .transition(.opacity)
+                        .animation(.easeInOut(duration: 0.3), value: showSuccessPopup)
+                    }
+                }
+                .frame(height: 100)
+
+                Spacer()
+                
                 if isControlVisibility {
                     CloseButton()
                 }
             }
+            .padding(.top, 10)
             Spacer()
 
             HStack{
@@ -54,6 +117,49 @@ struct ControlView: View {
             }
             
             ControlButtonBar(isControlVisibility: $isControlVisibility, showBrowse: $showBrowse, showSettings: $showSettings, models: models)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: .end3DModelAdded)) { _ in
+            
+        }
+    }
+    
+    
+    private func startLoading() {
+        loadingProgress = 0.0
+        let totalDuration: TimeInterval = 30.0
+        let stepDuration: TimeInterval = 0.1
+        let progressStep = stepDuration / totalDuration
+        
+        Task {
+            while showLoadingSpinner && loadingProgress < 1.0 {
+                try await Task.sleep(nanoseconds: UInt64(stepDuration * 1_000_000_000)) // 0.1 секунды
+                loadingProgress += progressStep
+                
+                // Ограничиваем прогресс максимумом в 1.0 на случай, если он выйдет за пределы
+                if loadingProgress >= 1.0 {
+                    loadingProgress = 1.0
+                    break
+                }
+            }
+            
+            if !showLoadingSpinner {
+                loadingProgress = 1.0 // Завершаем прогресс, если флаг изменяется на false до конца
+            }
+        }
+    }
+    
+    
+    private func stopLoading() {
+        loadingProgress = 1.0
+        
+        // Отобразить всплывающее сообщение об успехе
+        showSuccessPopup = true
+        
+        // Установить таймер для скрытия всплывающего сообщения
+        DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) { // Задержка в 2 секунды
+            withAnimation {
+                showSuccessPopup = false
+            }
         }
     }
 }
