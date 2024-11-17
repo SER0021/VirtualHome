@@ -88,7 +88,10 @@ struct AuthenticationView: View {
                     )
                     .padding(.horizontal, 16)
                     .fullScreenCover(isPresented: $showContentView, content: {
-                        ContentView(models: models)
+//                        ContentView(models: models)
+//                            .environmentObject(placementSettings)
+//                            .environmentObject(sessionSettings)
+                        MainView(models: models)
                             .environmentObject(placementSettings)
                             .environmentObject(sessionSettings)
                     })

@@ -20,6 +20,7 @@ struct ContentView: View {
     @State private var showSelectedModel: Bool = false
     @State private var selectedModel: Model? = nil
     @State var selectedModelAnchor: AnchorEntity? = nil
+    @Environment(\.presentationMode) var presentationMode
 
     var body: some View {
         ZStack(alignment: .bottom) {

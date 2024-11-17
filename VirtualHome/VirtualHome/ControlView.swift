@@ -21,16 +21,20 @@ struct ControlView: View {
     var body: some View {
         VStack {
             HStack {
-                SettingsButton() {
-                    print("settings button pressed")
-                    self.showSettings.toggle()
-                }.sheet(isPresented: $showSettings) {
-                    SettingsView(showSettings: $showSettings)
+                if isControlVisibility {
+                    SettingsButton() {
+                        print("settings button pressed")
+                        self.showSettings.toggle()
+                    }.sheet(isPresented: $showSettings) {
+                        SettingsView(showSettings: $showSettings)
+                    }
                 }
                 
                 Spacer()
-                
-                ControlVisibilityToggleButton(isControlVisibility: $isControlVisibility)
+
+                if isControlVisibility {
+                    CloseButton()
+                }
             }
             Spacer()
 
@@ -44,15 +48,40 @@ struct ControlView: View {
             }
             
             Spacer()
-
+            
             if isControlVisibility && showSelectedModel && selectedModel != nil {
                 SelectedModelView(models: models, showSelectedModel: $showSelectedModel, model: $selectedModel, selectedModelAnchor: $selectedModelAnchor)
             }
             
-            if isControlVisibility {
-                ControlButtonBar(showCreateView: $showCreateView, showBrowse: $showBrowse, showSettings: $showSettings, models: models)
-            }
+            ControlButtonBar(isControlVisibility: $isControlVisibility, showBrowse: $showBrowse, showSettings: $showSettings, models: models)
         }
+    }
+}
+
+struct CloseButton: View {
+    @Environment(\.presentationMode) var presentationMode
+
+    var body: some View {
+        HStack {
+            Spacer()
+            ZStack {
+                Color.black.opacity(0.25)
+                
+                Button(action: {
+                    print("close button")
+                    presentationMode.wrappedValue.dismiss()
+                }) {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 25))
+                        .foregroundStyle(.white)
+                        .buttonStyle(PlainButtonStyle())
+                }
+            }
+            .frame(width: 50, height: 50)
+            .cornerRadius(8.0)
+        }
+        .padding(.top, 45)
+        .padding(.trailing, 25)
     }
 }
 
@@ -113,7 +142,7 @@ struct SettingsButton: View {
 
 struct ControlButtonBar: View {
     @EnvironmentObject var placmentSettings: PlacementSettings
-    @Binding var showCreateView: Bool
+    @Binding var isControlVisibility: Bool
     @Binding var showBrowse: Bool
     @Binding var showSettings: Bool
     @ObservedObject var models: Models
@@ -124,25 +153,40 @@ struct ControlButtonBar: View {
 
             Spacer()
             
-            ControlButton(systemIconName: "plus.circle") {
-                print("browse button pressed")
-                self.showCreateView.toggle()
-            }.fullScreenCover(isPresented: $showCreateView, content: {
-                CreateView(models: models)
-            })
-
-            Spacer()
-
             ControlButton(systemIconName: "square.grid.2x2") {
                 print("browse button pressed")
                 self.showBrowse.toggle()
             }.sheet(isPresented: $showBrowse, content: {
                 BrowseView(showBrowse: $showBrowse, models: models)
             })
+            
+            Spacer()
+
+            ControlVisabilityButton(isControlVisibility: $isControlVisibility) {
+                self.isControlVisibility.toggle()
+            }
+            
         }
         .frame(maxWidth: 500)
         .padding(30)
         .background(Color.black.opacity(0.25))
+    }
+}
+
+struct ControlVisabilityButton: View {
+    @Binding var isControlVisibility: Bool
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: {
+            self.action()
+        }) {
+            Image(systemName: self.isControlVisibility ? "rectangle" : "slider.horizontal.below.rectangle")
+                .font(.system(size: 35))
+                .foregroundStyle(.white)
+                .buttonStyle(PlainButtonStyle())
+        }
+        .frame(width: 50, height: 50)
     }
 }
 

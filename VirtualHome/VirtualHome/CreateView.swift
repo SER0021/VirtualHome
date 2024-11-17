@@ -128,21 +128,26 @@ struct CreateView: View {
             
             VStack {
                 HStack {
-                    // Close Button
-                    Button(action: {
-                        presentationMode.wrappedValue.dismiss()
-                        cameraController.stopCamera()
-                        cameraController.captureSession?.stopRunning()
-                        NotificationCenter.default.post(name: .createViewDismissed, object: nil)
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 30))
-                            .foregroundColor(.blue)
-                            .padding()
-                    }
-                    
                     Spacer()
+                    ZStack {
+                        Color.black.opacity(0.25)
+                        
+                        Button(action: {
+                            print("close button")
+//                            cameraController.stopCamera()
+//                            cameraController.captureSession?.stopRunning()
+                            presentationMode.wrappedValue.dismiss()
+                        }) {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 25))
+                                .foregroundStyle(.white)
+                                .buttonStyle(PlainButtonStyle())
+                        }
+                    }
+                    .frame(width: 50, height: 50)
+                    .cornerRadius(8.0)
                 }
+                .padding(.trailing, 25)
                 
                 Spacer()
                 

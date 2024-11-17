@@ -9,6 +9,10 @@ import SwiftUI
 
 struct MainView: View {
     @ObservedObject var models: Models
+    @EnvironmentObject var placementSettings: PlacementSettings
+    @EnvironmentObject var sessionSettings: SessionSettings
+    @State var showCreateView: Bool = false
+    @State var showContentView: Bool = false
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack{
@@ -38,8 +42,8 @@ struct MainView: View {
                 }
             }
             HStack(spacing: 11) {
-                MainButtonView(imageName: "Icon.AddModel", text: "Добавить\n3D модель")
-                MainButtonView(imageName: "Icon.VirtualHome", text: "VirtualHome")
+                OpenCreateViewButton(imageName: "Icon.AddModel", text: "Добавить\n3D модель", models: models, showCreateView: $showCreateView)
+                OpenContentViewButton(imageName: "Icon.VirtualHome", text: "VirtualHome", models: models, showContentView: $showContentView)
             }
             .padding(.horizontal, 16)
             
@@ -69,7 +73,7 @@ struct MainView: View {
                 .padding(.top, 30)
             
             ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 16) { // Используйте HStack для горизонтального расположения
+                HStack(spacing: 16) {
                     ForEach(models.all, id: \.id) { model in
                         ModelView(model: model)
                     }
@@ -83,19 +87,29 @@ struct MainView: View {
     }
 }
 
-struct MainButtonView: View {
+struct OpenCreateViewButton: View {
     let imageName: String
     let text: String
+    @ObservedObject var models: Models
+    @Binding var showCreateView: Bool
+    @State private var isLoading: Bool = false // Флаг загрузки
+
     var body: some View {
-        Button(action: {
-            print("fkfkf")
-        }) {
+        ZStack {
             VStack(alignment: .leading, spacing: 0) {
-                Image(imageName)
-                    .resizable()
-                    .frame(width: 50, height: 50)
-                    .padding(.top)
-                    .padding(.horizontal)
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: Color("MainTextColor")))
+                        .frame(width: 50, height: 50)
+                        .padding(.top)
+                        .padding(.horizontal)
+                } else {
+                    Image(imageName)
+                        .resizable()
+                        .frame(width: 50, height: 50)
+                        .padding(.top)
+                        .padding(.horizontal)
+                }
                 Spacer()
                 Text(text)
                     .font(.system(size: 24, weight: .semibold))
@@ -104,18 +118,98 @@ struct MainButtonView: View {
             }
             .foregroundColor(Color("MainTextColor"))
             .frame(width: 175.0, height: 175.0)
-            .background(Color("FrameColor"))
+            .background(isLoading ? Color("FrameColor").opacity(0.5) : Color("FrameColor"))
             .cornerRadius(30)
         }
+        .onChange(of: showCreateView) { newValue in
+            // Если showContentView становится true, показываем спиннер
+            if newValue {
+                isLoading = true
+            } else {
+                isLoading = false // Скрываем спиннер, если закрывается ContentView
+            }
+        }
+        .disabled(isLoading) // Блокируем кнопку во время загрузки
+        .onTapGesture {
+            if !isLoading {
+                showCreateView = true
+            }
+        }
+        .fullScreenCover(isPresented: $showCreateView, onDismiss: {
+            // Убираем спиннер при закрытии ContentView
+            isLoading = false
+        }) {
+            CreateView(models: models)
+        }
     }
-    
+}
+
+struct OpenContentViewButton: View {
+    let imageName: String
+    let text: String
+    @ObservedObject var models: Models
+    @Binding var showContentView: Bool
+    @EnvironmentObject var placementSettings: PlacementSettings
+    @EnvironmentObject var sessionSettings: SessionSettings
+    @State private var isLoading: Bool = false // Флаг загрузки
+
+    var body: some View {
+        ZStack {
+            VStack(alignment: .leading, spacing: 0) {
+                if isLoading {
+                    ProgressView()
+                        .progressViewStyle(CircularProgressViewStyle(tint: Color("MainTextColor")))
+                        .frame(width: 50, height: 50)
+                        .padding(.top)
+                        .padding(.horizontal)
+                } else {
+                    Image(imageName)
+                        .resizable()
+                        .frame(width: 50, height: 50)
+                        .padding(.top)
+                        .padding(.horizontal)
+                }
+                Spacer()
+                Text(text)
+                    .font(.system(size: 24, weight: .semibold))
+                    .padding()
+                    .multilineTextAlignment(.leading)
+            }
+            .foregroundColor(Color("MainTextColor"))
+            .frame(width: 175.0, height: 175.0)
+            .background(isLoading ? Color("FrameColor").opacity(0.5) : Color("FrameColor"))
+            .cornerRadius(30)
+        }
+        .onChange(of: showContentView) { newValue in
+            // Если showContentView становится true, показываем спиннер
+            if newValue {
+                isLoading = true
+            } else {
+                isLoading = false // Скрываем спиннер, если закрывается ContentView
+            }
+        }
+        .disabled(isLoading) // Блокируем кнопку во время загрузки
+        .onTapGesture {
+            if !isLoading {
+                showContentView = true
+            }
+        }
+        .fullScreenCover(isPresented: $showContentView, onDismiss: {
+            // Убираем спиннер при закрытии ContentView
+            isLoading = false
+        }) {
+            ContentView(models: models)
+                .environmentObject(placementSettings)
+                .environmentObject(sessionSettings)
+        }
+    }
 }
 
 struct ModelView: View {
     var model: Model
     var body: some View {
         Button(action: {
-            print("fdfd")
+            print(model.getName())
         }) {
             VStack {
                 Image(uiImage: model.thumbnail)
