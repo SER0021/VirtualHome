@@ -29,16 +29,17 @@ struct AuthenticationView: View {
                 Spacer()
                 HStack{
                     Text("Авторизация")
-                        .font(.system(size: 40, weight: .semibold)).foregroundColor(Color(#colorLiteral(red: 0.85, green: 0.85, blue: 0.85, alpha: 1)))
+                        .font(.system(size: 40, weight: .semibold)).foregroundColor(Color("MainTextColor"))
                     Spacer()
                 }
                 .padding(.leading, 16)
                 .padding(.bottom, 50)
                 
                 VStack(spacing: 0) {
-                    TextField("", text: $login, prompt:Text("Почта").foregroundStyle(placeholderColor))
+                    TextField("", text: $login, prompt: Text("Почта").foregroundStyle(placeholderColor))
                         .padding()
                         .foregroundStyle(whiteColor)
+                        .frame(height: 44)
                     
                     Divider()
                         .background(Color.white)
@@ -46,6 +47,7 @@ struct AuthenticationView: View {
                     SecureField("", text: $password, prompt: Text("Пароль").foregroundStyle(placeholderColor))
                         .padding()
                         .foregroundStyle(whiteColor)
+                        .frame(height: 44)
                 }
                 .padding()
                 .background(
@@ -60,7 +62,7 @@ struct AuthenticationView: View {
                         print("Забыли пароль?")
                     }) {
                         Text("Забыли пароль?")
-                            .foregroundStyle(whiteColor)
+                            .foregroundStyle(Color("MainTextColor"))
                     }
                     
                     Spacer()
@@ -117,7 +119,7 @@ struct AuthenticationView: View {
                 }
                 .padding(.bottom, 30)
             }
-            .background(Color.gray)
+            .background(Color("AccentColor"))
         }
     }
 }
