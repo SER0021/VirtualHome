@@ -21,13 +21,13 @@ enum ModelCategory: CaseIterable {
         get {
             switch self {
             case .table:
-                return "Tables"
+                return "Столы"
             case .chair:
-                return "Chairs"
+                return "Стулья"
             case .decor:
-                return "Decors"
+                return "Декор"
             case .light:
-                return "Lights"
+                return "Освещение"
             }
         }
     }
@@ -92,11 +92,11 @@ class Models: ObservableObject {
     @Published var all: [Model] = []
     
     init() {
-        let chair = Model(name: "chair", category: .chair, scaleCompensation: 0.5)
-        let flower = Model(name: "flower", category: .decor, scaleCompensation: 0.5)
-        let tv = Model(name: "tv", category: .decor, scaleCompensation: 0.5)
-        let table = Model(name: "table", category: .table, scaleCompensation: 0.5)
-        let lamp = Model(name: "lamp", category: .light, scaleCompensation: 0.5)
+        let chair = Model(name: "стул", category: .chair, scaleCompensation: 0.5)
+        let flower = Model(name: "цветок", category: .decor, scaleCompensation: 0.5)
+        let tv = Model(name: "телевизор", category: .decor, scaleCompensation: 0.5)
+        let table = Model(name: "стол", category: .table, scaleCompensation: 0.5)
+        let lamp = Model(name: "лампа", category: .light, scaleCompensation: 0.5)
         
         self.all += [chair, flower, tv, table, lamp]
     }
@@ -124,7 +124,9 @@ class Models: ObservableObject {
                     let modelEntity = try await ModelEntity.loadModel(contentsOf: tempURL)
                     let newModel = Model(name: name, category: category, thumbnail: image, scaleCompensation: scaleCompensation, modelEntity: modelEntity)
                     
-                    all.append(newModel)
+//                    all.append(newModel)
+                    //добвлять модель в начало списка
+                    all.insert(newModel, at: 0)
                     
                     print("Model \(name) added successfully.")
                     NotificationCenter.default.post(name: .end3DModelAdded, object: nil)

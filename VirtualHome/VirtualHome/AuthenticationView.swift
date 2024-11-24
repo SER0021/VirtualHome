@@ -5,7 +5,6 @@
 //  Created by Сергей Васильев on 11.11.2024.
 //
 
-import Foundation
 import SwiftUI
 
 struct AuthenticationView: View {
@@ -25,100 +24,111 @@ struct AuthenticationView: View {
     
     var body: some View {
         NavigationView {
-            VStack {
-                Spacer()
-                HStack{
-                    Text("Авторизация")
-                        .font(.system(size: 40, weight: .semibold)).foregroundColor(Color(#colorLiteral(red: 0.85, green: 0.85, blue: 0.85, alpha: 1)))
-                    Spacer()
-                }
-                .padding(.leading, 16)
-                .padding(.bottom, 50)
-                
-                VStack(spacing: 0) {
-                    TextField("", text: $login, prompt:Text("Почта").foregroundStyle(placeholderColor))
-                        .padding()
-                        .foregroundStyle(whiteColor)
-                    
-                    Divider()
-                        .background(Color.white)
-                    
-                    SecureField("", text: $password, prompt: Text("Пароль").foregroundStyle(placeholderColor))
-                        .padding()
-                        .foregroundStyle(whiteColor)
-                }
-                .padding()
-                .background(
-                    RoundedRectangle(cornerRadius: 16)
-                        .fill(darkGrayColor)
-                        .shadow(radius: 5)
-                )
-                .padding(.horizontal, 16)
-                
-                HStack{
-                    Button(action: {
-                        print("Забыли пароль?")
-                    }) {
-                        Text("Забыли пароль?")
-                            .foregroundStyle(whiteColor)
+            ZStack {
+                // Обработчик нажатий на пустую область
+                Color.gray
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        UIApplication.shared.hideKeyboard()
                     }
-                    
+                
+                VStack {
                     Spacer()
-                }
-                .padding(.leading, 16)
-                .padding(.top, 10)
-                
-                Spacer()
-                
-                VStack{
-                    Button(action: {
-                        print("войти")
-                        showContentView.toggle()
-                    }) {
-                        Text("Войти")
-                            .font(.system(size: 17))
-                            .foregroundStyle(whiteColor)
+                    HStack {
+                        Text("Авторизация")
+                            .font(.system(size: 40, weight: .semibold))
+                            .foregroundColor(Color(#colorLiteral(red: 0.85, green: 0.85, blue: 0.85, alpha: 1)))
+                        Spacer()
+                    }
+                    .padding(.leading, 16)
+                    .padding(.bottom, 50)
+                    
+                    VStack(spacing: 0) {
+                        TextField("", text: $login, prompt: Text("Почта").foregroundStyle(placeholderColor))
                             .padding()
+                            .foregroundStyle(whiteColor)
+                        
+                        Divider()
+                            .background(Color.white)
+                        
+                        SecureField("", text: $password, prompt: Text("Пароль").foregroundStyle(placeholderColor))
+                            .padding()
+                            .foregroundStyle(whiteColor)
                     }
-                    .frame(maxWidth: .infinity)
+                    .padding()
                     .background(
                         RoundedRectangle(cornerRadius: 16)
                             .fill(darkGrayColor)
                             .shadow(radius: 5)
                     )
                     .padding(.horizontal, 16)
-                    .fullScreenCover(isPresented: $showContentView, content: {
-//                        ContentView(models: models)
-//                            .environmentObject(placementSettings)
-//                            .environmentObject(sessionSettings)
-                        MainView(models: models)
-                            .environmentObject(placementSettings)
-                            .environmentObject(sessionSettings)
-                    })
                     
-                    NavigationLink(destination: RegistrationView(), tag: 1, selection: $showRegistrationView) {
+                    HStack {
                         Button(action: {
-                            print("Регистрация")
-                            showRegistrationView = 1
+                            print("Забыли пароль?")
                         }) {
-                            Text("Регистрация")
+                            Text("Забыли пароль?")
+                                .foregroundStyle(whiteColor)
+                        }
+                        Spacer()
+                    }
+                    .padding(.leading, 16)
+                    .padding(.top, 10)
+                    
+                    Spacer()
+                    
+                    VStack {
+                        Button(action: {
+                            print("войти")
+                            showContentView.toggle()
+                        }) {
+                            Text("Войти")
                                 .font(.system(size: 17))
-                                .foregroundStyle(darkGrayColor)
+                                .foregroundStyle(whiteColor)
                                 .padding()
                         }
                         .frame(maxWidth: .infinity)
                         .background(
                             RoundedRectangle(cornerRadius: 16)
-                                .fill(darkWhiteColor)
+                                .fill(darkGrayColor)
                                 .shadow(radius: 5)
                         )
                         .padding(.horizontal, 16)
+                        .fullScreenCover(isPresented: $showContentView, content: {
+                            MainView(models: models)
+                                .environmentObject(placementSettings)
+                                .environmentObject(sessionSettings)
+                        })
+                        
+                        NavigationLink(destination: RegistrationView(), tag: 1, selection: $showRegistrationView) {
+                            Button(action: {
+                                print("Регистрация")
+                                showRegistrationView = 1
+                            }) {
+                                Text("Регистрация")
+                                    .font(.system(size: 17))
+                                    .foregroundStyle(darkGrayColor)
+                                    .padding()
+                            }
+                            .frame(maxWidth: .infinity)
+                            .background(
+                                RoundedRectangle(cornerRadius: 16)
+                                    .fill(darkWhiteColor)
+                                    .shadow(radius: 5)
+                            )
+                            .padding(.horizontal, 16)
+                        }
                     }
+                    .padding(.bottom, 30)
                 }
-                .padding(.bottom, 30)
             }
-            .background(Color.gray)
         }
+    }
+}
+
+extension UIApplication {
+    func hideKeyboard() {
+        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
     }
 }
 

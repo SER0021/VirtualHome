@@ -20,81 +20,90 @@ struct RegistrationView: View {
     let darkWhiteColor = Color(red: 218/255, green: 218/255, blue: 218/255, opacity: 1)
     
     var body: some View {
-        VStack {
-            Spacer()
-            HStack{
-                Text("Регистрация")
-                    .font(.system(size: 40))
-                    .bold()
-                    .foregroundStyle(darkWhiteColor)
-                Spacer()
-            }
-            .padding(.leading, 16)
-            .padding(.bottom, 50)
-            
-            VStack(spacing: 0) {
-                TextField("", text: $email, prompt:Text("Почта").foregroundStyle(placeholderColor))
-                .padding()
-                .foregroundStyle(whiteColor)
-                
-                Divider()
-                    .background(Color.white)
-                
-                TextField("", text: $login, prompt:Text("Логин").foregroundStyle(placeholderColor))
-                .padding()
-                .foregroundStyle(whiteColor)
-            }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(darkGrayColor)
-                    .shadow(radius: 5)
-            )
-            .padding(.horizontal, 16)
-            
-            VStack(spacing: 0) {
-                SecureField("", text: $password, prompt: Text("Пароль").foregroundStyle(placeholderColor))
-                    .padding()
-                    .foregroundStyle(whiteColor)
-                
-                Divider()
-                    .background(Color.white)
-                
-                SecureField("", text: $repeatPassword, prompt: Text("Повторный пароль").foregroundStyle(placeholderColor))
-                    .padding()
-                    .foregroundStyle(whiteColor)
-            }
-            .padding()
-            .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(darkGrayColor)
-                    .shadow(radius: 5)
-            )
-            .padding(.horizontal, 16)
-
-            Spacer()
-            
-            VStack{
-                Button(action: {
-                    print("Регистрация")
-                    presentationMode.wrappedValue.dismiss()
-                }) {
-                    Text("Регистрация")
-                        .font(.system(size: 17))
-                        .foregroundStyle(darkGrayColor)
-                        .padding()
+        ZStack {
+            // Обработчик нажатий на пустую область
+            Color.gray
+                .ignoresSafeArea()
+                .onTapGesture {
+                    UIApplication.shared.hideKeyboard()
                 }
-                .frame(maxWidth: .infinity)
+            
+            VStack {
+                Spacer()
+                HStack {
+                    Text("Регистрация")
+                        .font(.system(size: 40))
+                        .bold()
+                        .foregroundStyle(darkWhiteColor)
+                    Spacer()
+                }
+                .padding(.leading, 16)
+                .padding(.bottom, 50)
+                
+                VStack(spacing: 0) {
+                    TextField("", text: $email, prompt: Text("Почта").foregroundStyle(placeholderColor))
+                        .padding()
+                        .foregroundStyle(whiteColor)
+                    
+                    Divider()
+                        .background(Color.white)
+                    
+                    TextField("", text: $login, prompt: Text("Логин").foregroundStyle(placeholderColor))
+                        .padding()
+                        .foregroundStyle(whiteColor)
+                }
+                .padding()
                 .background(
                     RoundedRectangle(cornerRadius: 16)
-                        .fill(darkWhiteColor)
+                        .fill(darkGrayColor)
                         .shadow(radius: 5)
                 )
                 .padding(.horizontal, 16)
+                
+                VStack(spacing: 0) {
+                    SecureField("", text: $password, prompt: Text("Пароль").foregroundStyle(placeholderColor))
+                        .padding()
+                        .foregroundStyle(whiteColor)
+                    
+                    Divider()
+                        .background(Color.white)
+                    
+                    SecureField("", text: $repeatPassword, prompt: Text("Повторный пароль").foregroundStyle(placeholderColor))
+                        .padding()
+                        .foregroundStyle(whiteColor)
+                }
+                .padding()
+                .background(
+                    RoundedRectangle(cornerRadius: 16)
+                        .fill(darkGrayColor)
+                        .shadow(radius: 5)
+                )
+                .padding(.horizontal, 16)
+
+                Spacer()
+                
+                VStack {
+                    Button(action: {
+                        print("Регистрация")
+                        presentationMode.wrappedValue.dismiss()
+                    }) {
+                        Text("Регистрация")
+                            .font(.system(size: 17))
+                            .foregroundStyle(darkGrayColor)
+                            .padding()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .background(
+                        RoundedRectangle(cornerRadius: 16)
+                            .fill(darkWhiteColor)
+                            .shadow(radius: 5)
+                    )
+                    .padding(.horizontal, 16)
+                }
+                .padding(.bottom, 30)
             }
-            .padding(.bottom, 30)
         }
-        .background(Color.gray)
     }
 }
+
 

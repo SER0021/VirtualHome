@@ -239,7 +239,3 @@ struct ModelView: View {
         .cornerRadius(30)
     }
 }
-
-#Preview {
-    MainView(models: Models())
-}

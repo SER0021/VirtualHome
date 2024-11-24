@@ -235,10 +235,11 @@ struct ImagePreviewView: View {
     @ObservedObject var models: Models
     @State private var imageName: String = ""
     @State private var selectedCategory = ModelCategory.decor
+    @State private var showError: Bool = false
 
     var body: some View {
         VStack {
-            HStack{
+            HStack {
                 Spacer()
                 
                 Button("Закрыть") {
@@ -271,7 +272,7 @@ struct ImagePreviewView: View {
             
             HStack {
                 Button(action: {
-                    sendToBackend(imageName: imageName, category: selectedCategory)
+                    validateAndSave()
                 }) {
                     Text("Сохранить")
                         .font(.system(size: 27))
@@ -279,15 +280,30 @@ struct ImagePreviewView: View {
                         .bold()
                         .padding()
                 }
-                .background(Color.gray)
+                .background(isFormValid() ? Color.blue : Color.gray) // Цвет кнопки в зависимости от валидности
                 .cornerRadius(8.0)
                 .padding()
+                .disabled(!isFormValid()) // Блокировка кнопки, если поле пустое
             }
         }
     }
     
+    // Проверка и сохранение
+    private func validateAndSave() {
+        if imageName.isEmpty {
+            showError = true
+        } else {
+            showError = false
+            sendToBackend(imageName: imageName, category: selectedCategory)
+        }
+    }
+    
+    // Проверка валидности формы
+    private func isFormValid() -> Bool {
+        !imageName.isEmpty
+    }
+    
     private func sendToBackend(imageName: String, category: ModelCategory) {
-//        UIImageWriteToSavedPhotosAlbum(image, nil, nil, nil)
         let uploader = PhotoUploader(serverURL: URL(string: "http://90.156.217.78:8080/api/upload")!)
         NotificationCenter.default.post(name: .start3DModelAdded, object: nil)
         uploader.uploadPhoto(image) { result in
@@ -295,13 +311,11 @@ struct ImagePreviewView: View {
             case .success(let (_, fileName)):
                 print("Photo uploaded successfully with filename: \(fileName)")
                 
-                // URL, на который будет отправлен POST запрос для запуска скрипта
                 guard let scriptURL = URL(string: "http://90.156.217.78:8080/api/run-script") else {
                     print("Invalid URL for script runner")
                     return
                 }
                 
-                // Создаем и вызываем PostScriptRunner
                 let scriptRunner = PostScriptRunner(serverURL: scriptURL)
                 
                 scriptRunner.runScript(with: "examples/\(fileName)") { result in
@@ -318,7 +332,7 @@ struct ImagePreviewView: View {
             }
         }
 
-        clearAndDismiss() // Закрытие экрана после сохранения
+        clearAndDismiss()
     }
     
     private func clearAndDismiss() {
@@ -327,6 +341,7 @@ struct ImagePreviewView: View {
         isPresented = false
     }
 }
+
 
 struct PhotoPicker: UIViewControllerRepresentable {
     @Binding var selectedImage: UIImage?
