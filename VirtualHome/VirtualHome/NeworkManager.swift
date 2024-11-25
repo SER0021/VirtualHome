@@ -102,6 +102,14 @@ class PostScriptRunner {
     }
     
     func runScript(with filename: String, completion: @escaping (Result<ScriptResponse, Error>) -> Void) {
+        // Создаем URLSessionConfiguration и настраиваем таймаут
+        let configuration = URLSessionConfiguration.default
+        configuration.timeoutIntervalForRequest = 100.0
+        configuration.timeoutIntervalForResource = 100.0
+
+        // Создаем URLSession с заданной конфигурацией
+        let session = URLSession(configuration: configuration)
+        
         // Создаем URLRequest
         var request = URLRequest(url: serverURL)
         request.httpMethod = "POST"
@@ -117,13 +125,15 @@ class PostScriptRunner {
         request.httpBody = jsonData
         
         // Выполняем запрос
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        let task = session.dataTask(with: request) { data, response, error in
             if let error = error {
                 completion(.failure(error))
                 return
             }
             
             guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200 else {
+                let resp = response as? HTTPURLResponse
+                print(resp?.statusCode ?? "Unknown status code")
                 completion(.failure(NSError(domain: "PostScriptRunner", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed HTTP response."])))
                 return
             }

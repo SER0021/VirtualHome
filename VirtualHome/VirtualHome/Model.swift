@@ -111,7 +111,7 @@ class Models: ObservableObject {
 
     func addModel(name: String, category: ModelCategory, data: Data, scaleCompensation: Float, image: UIImage) {
         // Создаем временный файл
-        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(name).usdz")
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(name).usd")
         do {
             // Записываем данные в файл
             try data.write(to: tempURL)
