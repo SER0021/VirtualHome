@@ -22,7 +22,7 @@ struct RegistrationView: View {
     var body: some View {
         ZStack {
             // Обработчик нажатий на пустую область
-            Color.gray
+            Color("AccentColor")
                 .ignoresSafeArea()
                 .onTapGesture {
                     UIApplication.shared.hideKeyboard()

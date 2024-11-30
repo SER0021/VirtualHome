@@ -126,7 +126,7 @@ struct ControlView: View {
     
     private func startLoading() {
         loadingProgress = 0.0
-        let totalDuration: TimeInterval = 30.0
+        let totalDuration: TimeInterval = 90.0
         let stepDuration: TimeInterval = 0.1
         let progressStep = stepDuration / totalDuration
         

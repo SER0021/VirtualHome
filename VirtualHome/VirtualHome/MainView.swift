@@ -17,6 +17,19 @@ struct MainView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack{
+                HStack{
+                    Image("Icon.VirtualHome")
+                        .resizable()
+                        .frame(width: 50, height: 50)
+                    Text("Home")
+                        .font(.system(size: 24, weight: .bold))
+                        .foregroundColor(Color("MainTextColor"))
+                        .multilineTextAlignment(.leading)
+                }
+                .padding(8)
+                .cornerRadius(16)
+                .padding(.leading, 16)
+
                 Spacer()
                 Button(action: {
                     print("profile")
@@ -44,7 +57,7 @@ struct MainView: View {
             }
             HStack(spacing: 11) {
                 OpenCreateViewButton(imageName: "Icon.AddModel", text: "Добавить\n3D модель", models: models, showCreateView: $showCreateView, showLoadingSpinner: $showLoadingSpinner)
-                OpenContentViewButton(imageName: "Icon.VirtualHome", text: "VirtualHome", models: models, showContentView: $showContentView, showLoadingSpinner: $showLoadingSpinner)
+                OpenContentViewButton(imageName: "Icon.ARView", text: "Примерить\nмодель", models: models, showContentView: $showContentView, showLoadingSpinner: $showLoadingSpinner)
             }
             .padding(.horizontal, 16)
             
@@ -114,7 +127,7 @@ struct OpenCreateViewButton: View {
                 } else {
                     Image(imageName)
                         .resizable()
-                        .frame(width: 50, height: 50)
+                        .frame(width: 55, height: 50)
                         .padding(.top)
                         .padding(.horizontal)
                 }

@@ -26,7 +26,7 @@ struct AuthenticationView: View {
         NavigationView {
             ZStack {
                 // Обработчик нажатий на пустую область
-                Color.gray
+                Color("AccentColor")
                     .ignoresSafeArea()
                     .onTapGesture {
                         UIApplication.shared.hideKeyboard()
@@ -35,13 +35,18 @@ struct AuthenticationView: View {
                 VStack {
                     Spacer()
                     HStack {
-                        Text("Авторизация")
-                            .font(.system(size: 40, weight: .semibold))
-                            .foregroundColor(Color(#colorLiteral(red: 0.85, green: 0.85, blue: 0.85, alpha: 1)))
+                        Spacer()
+                        VStack{
+                            Image("Icon.VirtualHome")
+                                .resizable()
+                                .frame(width: 64, height: 64)
+                            Text("Вход Virtual Home")
+                                .font(.system(size: 40, weight: .semibold))
+                                .foregroundColor(Color(#colorLiteral(red: 0.85, green: 0.85, blue: 0.85, alpha: 1)))
+                        }
                         Spacer()
                     }
-                    .padding(.leading, 16)
-                    .padding(.bottom, 50)
+                    .padding(.bottom, 35)
                     
                     VStack(spacing: 0) {
                         TextField("", text: $login, prompt: Text("Почта").foregroundStyle(placeholderColor))
