@@ -20,7 +20,7 @@ struct VirtualHomeApp: App {
 //                .environmentObject(placementSettings)
 //                .environmentObject(sessionSettings)
             AuthenticationView()
-//            RegistrationView()
+//            OnboardingView()
         }
     }
 }

@@ -14,6 +14,7 @@ struct MainView: View {
     @State var showCreateView: Bool = false
     @State var showContentView: Bool = false
     @State var showLoadingSpinner: Bool = false
+    @State private var showOnboarding: Bool = true
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack{
@@ -103,6 +104,13 @@ struct MainView: View {
         }
         .onReceive(NotificationCenter.default.publisher(for: .end3DModelAdded)) { _ in
             showLoadingSpinner = false
+        }
+        .fullScreenCover(isPresented: $showOnboarding) {
+            OnboardingView(showOnboarding: $showOnboarding)
+                .onDisappear {
+                    // Сохраняем состояние после закрытия OnboardingView
+//                    UserDefaults.standard.set(true, forKey: "DidShowOnboarding")
+                }
         }
     }
 }
