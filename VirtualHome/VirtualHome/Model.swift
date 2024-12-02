@@ -111,7 +111,7 @@ class Models: ObservableObject {
 
     func addModel(name: String, category: ModelCategory, data: Data, scaleCompensation: Float, image: UIImage) {
         // Создаем временный файл
-        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(name).usd")
+        let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent("\(name).usdz")
         do {
             // Записываем данные в файл
             try data.write(to: tempURL)
@@ -171,6 +171,14 @@ class Models: ObservableObject {
     func handleResponse(_ response: ScriptResponse, imageName: String, category: ModelCategory) {
         let modelData = data(fromHexString: response.meshData.data)
         let image = response.decodedImage() ?? UIImage(systemName: "photo")!
+        addModel(name: imageName, category: category, data: modelData!, scaleCompensation: 0.5, image: image)
+    }
+    
+    func handleResponseV2(_ meshData: MeshData, imageName: String, category: ModelCategory) {
+        let modelData = data(fromHexString: meshData.data)
+        //TODO: добавить фотку для модели
+//        let image = response.decodedImage() ?? UIImage(systemName: "photo")!
+        let image = UIImage(systemName: "photo")!
         addModel(name: imageName, category: category, data: modelData!, scaleCompensation: 0.5, image: image)
     }
     

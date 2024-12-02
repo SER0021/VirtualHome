@@ -12,12 +12,13 @@ class PhotoUploader: NSObject {
         
         // Создание URLSession с делегатом для обработки сертификата
         let config = URLSessionConfiguration.default
-        config.timeoutIntervalForRequest = 30.0 // 30 секунд
-        config.timeoutIntervalForResource = 60.0 // 60 секунд
+        config.timeoutIntervalForRequest = 100.0
+        config.timeoutIntervalForResource = 100.0
+
         self.session = URLSession(configuration: config, delegate: self, delegateQueue: nil)
     }
     
-    func uploadPhoto(_ photo: UIImage, completion: @escaping (Result<(Data, String), Error>) -> Void) {
+    func uploadPhoto(_ photo: UIImage, completion: @escaping (Result<(MeshData), Error>) -> Void) {
         guard let imageData = photo.jpegData(compressionQuality: 1) else {
             completion(.failure(NSError(domain: "PhotoUploader", code: 0, userInfo: [NSLocalizedDescriptionKey: "Unable to convert image to JPEG data."])))
             return
@@ -59,7 +60,14 @@ class PhotoUploader: NSObject {
                 return
             }
             
-            completion(.success((data, self.fileName!)))
+            // Проверяем данные ответа
+            do {
+                let decoder = JSONDecoder()
+                let meshData = try decoder.decode(MeshData.self, from: data)
+                completion(.success(meshData))
+            } catch {
+                completion(.failure(NSError(domain: "PostScriptRunner", code: 0, userInfo: [NSLocalizedDescriptionKey: "Failed to decode response."])))
+            }
         }
         
         task.resume()

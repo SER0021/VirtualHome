@@ -304,36 +304,58 @@ struct ImagePreviewView: View {
     }
     
     private func sendToBackend(imageName: String, category: ModelCategory) {
-        let uploader = PhotoUploader(serverURL: URL(string: "http://90.156.217.78:8080/api/upload")!)
+        // Предполагаем, что у вас есть URL вашего сервера
+        let serverURL = URL(string: "http://90.156.217.78:8080/api/newrun-script")!
+        // Создание экземпляра PhotoUploader
+        let photoUploader = PhotoUploaderV2(serverURL: serverURL)
+        // Предполагаем, что у вас есть изображение, которое вы хотите загрузить
         NotificationCenter.default.post(name: .start3DModelAdded, object: nil)
-        uploader.uploadPhoto(image) { result in
+
+        // Вызов функции uploadPhoto
+        photoUploader.uploadPhoto(image) { result in
             switch result {
-            case .success(let (_, fileName)):
-                print("Photo uploaded successfully with filename: \(fileName)")
-                
-                guard let scriptURL = URL(string: "http://90.156.217.78:8080/api/run-script") else {
-                    print("Invalid URL for script runner")
-                    return
-                }
-                
-                let scriptRunner = PostScriptRunner(serverURL: scriptURL)
-                
-                scriptRunner.runScript(with: "examples/\(fileName)") { result in
-                    switch result {
-                    case .success(let response):
-                        print("Successfully")
-                        models.handleResponse(response, imageName: imageName, category: category)
-                    case .failure(let error):
-                        print("Error: \(error.localizedDescription)")
-                    }
-                }
+            case .success(let response):
+                print("Upload successful!")
+                models.handleResponseV2(response.meshData, imageName: imageName, category: category)
             case .failure(let error):
-                print("Failed to upload photo: \(error.localizedDescription)")
+                print("Error uploading photo: \(error.localizedDescription)")
             }
         }
 
         clearAndDismiss()
     }
+    
+//    private func sendToBackend(imageName: String, category: ModelCategory) {
+//        let uploader = PhotoUploader(serverURL: URL(string: "http://90.156.217.78:8080/api/upload")!)
+//        NotificationCenter.default.post(name: .start3DModelAdded, object: nil)
+//        uploader.uploadPhoto(image) { result in
+//            switch result {
+//            case .success(let (_, fileName)):
+//                print("Photo uploaded successfully with filename: \(fileName)")
+//                
+//                guard let scriptURL = URL(string: "http://90.156.217.78:8080/api/run-script") else {
+//                    print("Invalid URL for script runner")
+//                    return
+//                }
+//                
+//                let scriptRunner = PostScriptRunner(serverURL: scriptURL)
+//                
+//                scriptRunner.runScript(with: "examples/\(fileName)") { result in
+//                    switch result {
+//                    case .success(let response):
+//                        print("Successfully")
+//                        models.handleResponse(response, imageName: imageName, category: category)
+//                    case .failure(let error):
+//                        print("Error: \(error.localizedDescription)")
+//                    }
+//                }
+//            case .failure(let error):
+//                print("Failed to upload photo: \(error.localizedDescription)")
+//            }
+//        }
+//
+//        clearAndDismiss()
+//    }
     
     private func clearAndDismiss() {
         capturedImage = nil
