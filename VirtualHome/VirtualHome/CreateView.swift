@@ -128,26 +128,61 @@ struct CreateView: View {
             
             VStack {
                 HStack {
+                    ZStack {
+                        Color.black.opacity(0.25)
+                        
+                        Button(action: {
+                            print("help button tapped")
+                            //показ туториала
+                        }) {
+                            Image(systemName: "questionmark.circle")
+                                .font(.system(size: 25))
+                                .foregroundStyle(.white)
+                        }
+                    }
+                    .frame(width: 50, height: 50)
+                    .cornerRadius(8.0)
+                    
                     Spacer()
+                    
                     ZStack {
                         Color.black.opacity(0.25)
                         
                         Button(action: {
                             print("close button")
-//                            cameraController.stopCamera()
-//                            cameraController.captureSession?.stopRunning()
                             presentationMode.wrappedValue.dismiss()
                         }) {
                             Image(systemName: "xmark")
                                 .font(.system(size: 25))
                                 .foregroundStyle(.white)
-                                .buttonStyle(PlainButtonStyle())
                         }
                     }
                     .frame(width: 50, height: 50)
                     .cornerRadius(8.0)
                 }
-                .padding(.trailing, 25)
+                .padding(.horizontal, 25)
+
+//                HStack {
+//                    Spacer()
+//                    ZStack {
+//                        Color.black.opacity(0.25)
+//                        
+//                        Button(action: {
+//                            print("close button")
+////                            cameraController.stopCamera()
+////                            cameraController.captureSession?.stopRunning()
+//                            presentationMode.wrappedValue.dismiss()
+//                        }) {
+//                            Image(systemName: "xmark")
+//                                .font(.system(size: 25))
+//                                .foregroundStyle(.white)
+//                                .buttonStyle(PlainButtonStyle())
+//                        }
+//                    }
+//                    .frame(width: 50, height: 50)
+//                    .cornerRadius(8.0)
+//                }
+//                .padding(.trailing, 25)
                 
                 Spacer()
                 
@@ -304,14 +339,10 @@ struct ImagePreviewView: View {
     }
     
     private func sendToBackend(imageName: String, category: ModelCategory) {
-        // Предполагаем, что у вас есть URL вашего сервера
         let serverURL = URL(string: "http://90.156.217.78:8080/api/newrun-script")!
-        // Создание экземпляра PhotoUploader
         let photoUploader = PhotoUploaderV2(serverURL: serverURL)
-        // Предполагаем, что у вас есть изображение, которое вы хотите загрузить
         NotificationCenter.default.post(name: .start3DModelAdded, object: nil)
 
-        // Вызов функции uploadPhoto
         photoUploader.uploadPhoto(image) { result in
             switch result {
             case .success(let response):

@@ -25,14 +25,17 @@ struct ControlView: View {
         VStack {
             HStack {
                 if isControlVisibility {
-                    SettingsButton() {
-                        print("settings button pressed")
-                        self.showSettings.toggle()
-                    }.sheet(isPresented: $showSettings) {
-                        SettingsView(showSettings: $showSettings)
-                    }
+                    TutorialButton()
                 }
-                
+//  кнопка настроек
+//                if isControlVisibility && showSettingsButton{
+//                    SettingsButton() {
+//                        print("settings button pressed")
+//                        self.showSettings.toggle()
+//                    }.sheet(isPresented: $showSettings) {
+//                        SettingsView(showSettings: $showSettings)
+//                    }
+//                }
                 Spacer()
                 
                 
@@ -164,6 +167,31 @@ struct ControlView: View {
     }
 }
 
+struct TutorialButton: View {
+    var body: some View {
+        HStack {
+            ZStack {
+                Color.black.opacity(0.25)
+                
+                Button(action: {
+                    print("TutorialButton")
+                }) {
+                    Image(systemName: "questionmark.circle")
+                        .font(.system(size: 25))
+                        .foregroundStyle(.white)
+                        .buttonStyle(PlainButtonStyle())
+                }
+            }
+            .frame(width: 50, height: 50)
+            .cornerRadius(8.0)
+
+            Spacer()
+        }
+        .padding(.top, 45)
+        .padding(.leading, 25)
+    }
+}
+
 struct CloseButton: View {
     @Environment(\.presentationMode) var presentationMode
 
@@ -174,7 +202,6 @@ struct CloseButton: View {
                 Color.black.opacity(0.25)
                 
                 Button(action: {
-                    print("close button")
                     presentationMode.wrappedValue.dismiss()
                 }) {
                     Image(systemName: "xmark")

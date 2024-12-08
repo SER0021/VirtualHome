@@ -15,6 +15,8 @@ struct MainView: View {
     @State var showContentView: Bool = false
     @State var showLoadingSpinner: Bool = false
     @State private var showOnboarding: Bool = true
+    @State private var isLoadingModel: Bool = false
+
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack{
@@ -89,21 +91,40 @@ struct MainView: View {
             
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 16) {
+                    // Заглушка для модели
+                    if isLoadingModel {
+                        LoadingModelView()
+                            .transition(.opacity) // Анимация появления/исчезновения
+                    }
+                    
+                    // Существующие модели
                     ForEach(models.all, id: \.id) { model in
                         ModelView(model: model)
                     }
                 }
                 .padding()
             }
+
+
+//            ScrollView(.horizontal, showsIndicators: false) {
+//                HStack(spacing: 16) {
+//                    ForEach(models.all, id: \.id) { model in
+//                        ModelView(model: model)
+//                    }
+//                }
+//                .padding()
+//            }
             
             Spacer()
         }
         .background(Color("AccentColor"))
         .onReceive(NotificationCenter.default.publisher(for: .start3DModelAdded)) { _ in
             showLoadingSpinner = true
+            isLoadingModel = true
         }
         .onReceive(NotificationCenter.default.publisher(for: .end3DModelAdded)) { _ in
             showLoadingSpinner = false
+            isLoadingModel = false
         }
         .fullScreenCover(isPresented: $showOnboarding) {
             OnboardingView(showOnboarding: $showOnboarding)
@@ -260,3 +281,22 @@ struct ModelView: View {
         .cornerRadius(30)
     }
 }
+
+struct LoadingModelView: View {
+    var body: some View {
+        VStack {
+            ProgressView()
+                .progressViewStyle(CircularProgressViewStyle(tint: Color("MainTextColor")))
+                .frame(width: 100, height: 100)
+            
+            Text("Загрузка...")
+                .foregroundColor(Color("SubTextColor"))
+                .font(.system(size: 14))
+                .padding(.top, 5)
+        }
+        .frame(width: 150.0, height: 150.0)
+        .background(Color("FrameColor").opacity(0.5))
+        .cornerRadius(30)
+    }
+}
+
