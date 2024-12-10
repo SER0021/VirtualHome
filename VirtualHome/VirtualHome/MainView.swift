@@ -44,7 +44,7 @@ struct MainView: View {
             }
             HStack(spacing: 11) {
                 OpenCreateViewButton(imageName: "Icon.AddModel", text: "Добавить\n3D модель", models: models, showCreateView: $showCreateView, showLoadingSpinner: $showLoadingSpinner)
-                OpenContentViewButton(imageName: "Icon.VirtualHome", text: "VirtualHome", models: models, showContentView: $showContentView, showLoadingSpinner: $showLoadingSpinner)
+                OpenContentViewButton(imageName: "Icon.VirtualHome", text: "Создать интерьер", models: models, showContentView: $showContentView, showLoadingSpinner: $showLoadingSpinner)
             }
             .padding(.horizontal, 16)
             
@@ -240,6 +240,60 @@ struct ModelView: View {
     }
 }
 
+struct ModelDetailsView: View {
+    @State var model: Model
+    @Environment(\.presentationMode) var presentationMode
+    @State private var showDeleteAlert = false
+    
+    var body: some View {
+        NavigationView {
+            VStack(spacing: 20) {
+                Image(uiImage: model.thumbnail)
+                    .resizable()
+                    .aspectRatio(contentMode: .fit)
+                    .frame(maxHeight: .infinity)
+
+                Text(model.getName())
+                    .font(.largeTitle)
+                    .bold()
+
+                Text("Категория: \(model.category.label)")
+                    .font(.headline)
+
+                Button(action: {
+                    showDeleteAlert = true
+                }) {
+                    Text("Удалить модель")
+                        .foregroundColor(.white)
+                        .padding()
+                        .frame(maxWidth: .infinity)
+                        .background(Color.red)
+                        .cornerRadius(10)
+                }
+                .padding(.horizontal)
+                .alert(isPresented: $showDeleteAlert) {
+                    Alert(
+                        title: Text("Удаление модели"),
+                        message: Text("Вы действительно хотите удалить модель?"),
+                        primaryButton: .destructive(Text("Удалить")) {
+                            presentationMode.wrappedValue.dismiss()
+                        },
+                        secondaryButton: .cancel(Text("Отменить"))
+                    )
+                }
+            }
+            .padding()
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarItems(leading: Button("< Назад") {
+                presentationMode.wrappedValue.dismiss()
+            })
+            .background(Color("AccentColor"))
+            .foregroundColor(Color("MainTextColor"))
+        }
+        .navigationViewStyle(StackNavigationViewStyle())
+    }
+}
+
 #Preview {
-    MainView(models: Models())
+    ModelDetailsView(model: Models().all[0])
 }
