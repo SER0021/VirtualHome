@@ -14,6 +14,7 @@ struct MainView: View {
     @State var showCreateView: Bool = false
     @State var showContentView: Bool = false
     @State var showLoadingSpinner: Bool = false
+    @State var showProfileView: Bool = false
     @State private var showOnboarding: Bool = true
     @State private var isLoadingModel: Bool = false
 
@@ -36,6 +37,7 @@ struct MainView: View {
                 Spacer()
                 Button(action: {
                     print("profile")
+                    showProfileView.toggle()
                 }) {
                     HStack(spacing: 8) {
                         VStack(alignment: .trailing, spacing: 3) {
@@ -56,6 +58,9 @@ struct MainView: View {
                     .background(Color("FrameColor"))
                     .cornerRadius(16)
                     .padding(.trailing, 16)
+                }
+                .fullScreenCover(isPresented: $showProfileView) {
+                    ProfileChangeView()
                 }
             }
             HStack(spacing: 11) {
@@ -257,10 +262,12 @@ struct OpenContentViewButton: View {
 }
 
 struct ModelView: View {
+    @State var showModelView: Bool = false
     var model: Model
     var body: some View {
         Button(action: {
             print(model.getName())
+            showModelView.toggle()
         }) {
             VStack {
                 Image(uiImage: model.thumbnail)
@@ -279,6 +286,9 @@ struct ModelView: View {
         .frame(width: 150.0, height: 150.0)
         .background(Color("FrameColor"))
         .cornerRadius(30)
+        .fullScreenCover(isPresented: $showModelView) {
+            ModelDetailsView(model: model)
+        }
     }
 }
 
