@@ -15,6 +15,7 @@ struct MainView: View {
     @State var showContentView: Bool = false
     @State var showLoadingSpinner: Bool = false
     @State var showProfileView: Bool = false
+    @State var showCatalogView: Bool = false
     @State private var showOnboarding: Bool = true
     @State private var isLoadingModel: Bool = false
 
@@ -70,6 +71,7 @@ struct MainView: View {
             .padding(.horizontal, 16)
             
             Button(action: {
+                showCatalogView.toggle()
             }) {
                 HStack(alignment: .center, spacing: 0) {
                     Image("Icon.Catalog")
@@ -87,6 +89,9 @@ struct MainView: View {
                 .cornerRadius(30)
             }
             .padding(.horizontal, 16)
+            .fullScreenCover(isPresented: $showCatalogView) {
+                BrowseView(showBrowse: $showCatalogView, models: models)
+            }
             
             Text("Недавние 3D модели")
                 .font(.system(size: 30, weight: .semibold))
